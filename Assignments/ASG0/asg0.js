@@ -1,4 +1,4 @@
-import Vector3 from "lib/cuon-matrix-cse160.js";
+import matrix from "/lib/cuon-matrix-cse160.js";
 
 function main() {
   // retrieve <canvas> element
@@ -9,10 +9,16 @@ function main() {
     return;
   }
 
-  // get rendering context for 2dcg
+  // // get rendering context for 2dcg
   var ctx = canvas.getContext("2d");
 
-  ctx.fillStyle = "rgba(0, 0, 255, 1.0)"; // set a blue color
+  ctx.fillStyle = "black"; // set a blue color
   ctx.fillRect(120, 10, 150, 150); // fill a rectangle with the color
-  
+  const v1 = new Vector3();
+
+}
+
+
+function drawVector(v, color) {
+
 }
