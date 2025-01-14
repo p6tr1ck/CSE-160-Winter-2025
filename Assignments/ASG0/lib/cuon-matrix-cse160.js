@@ -100,7 +100,6 @@ export class Vector3 {
       let d = (other1.elements[0] * other2.elements[0]) + (other1.elements[1] * other2.elements[1]) + (other1.elements[2] * other2.elements[2]);
       let m1 = other1.magnitude();
       let m2 = other2.magnitude();
-      console.log(d, m1, m2);
       d = d / (m1 * m2);
       const acos = Math.acos(d);
       d = acos * (180 / Math.PI)
@@ -115,7 +114,14 @@ export class Vector3 {
   static cross(other1, other2) {
       // Insert your code here.
       // This function should create and return a new vector.
-      let v3 = new Vector3(); // Modify this line to calculate cross product between other1 and other2.
+      let i, j, k; // (0, 5, 0) (5, 0, 0)
+      i = (other1.elements[1] * other2.elements[2]) - (other1.elements[2] * other2.elements[1])
+      j = (other1.elements[0] * other2.elements[2]) - (other1.elements[2] * other2.elements[0])
+      k = (other1.elements[0] * other2.elements[2]) - (other1.elements[1] * other2.elements[0])
+      if (j <= 0) {
+        j = Math.abs(j);
+      }
+      let v3 = new Vector3([i, j, k]); // Modify this line to calculate cross product between other1 and other2.
 
       // Don't delete the return statement.
       return v3;
@@ -127,7 +133,7 @@ export class Vector3 {
     */
   magnitude() {
       // Insert your code here.
-      let m = Math.sqrt((this.elements[0])**2 + (this.elements[1])**2); // Modify this line to calculate this vector's magnitude.
+      let m = Math.sqrt((this.elements[0])**2 + (this.elements[1])**2 + (this.elements[2]) ** 2); // Modify this line to calculate this vector's magnitude.
 
       // Don't delete the return statement.
       return m;

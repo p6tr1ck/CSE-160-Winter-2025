@@ -66,8 +66,11 @@ function handleDrawOperationEvent() {
   } else if (operation === 'magnitude'){
     console.log(`Magnitude v1: ${v1.magnitude()}`)
     console.log(`Magnitude v2: ${v2.magnitude()}`)
-  } else if (operation == 'angleBetween') {
+  } else if (operation === 'angleBetween') {
     console.log(`Angle: ${Vector3.dot(v1, v2)}`);
+  } else if (operation === 'area') {
+    const tempVector = Vector3.cross(v1, v2);
+    console.log(`Area of the triangle: ${tempVector.magnitude() / 2}`);
   } else {
     clearRect();
     const scalar = document.getElementById("scalar").value;
