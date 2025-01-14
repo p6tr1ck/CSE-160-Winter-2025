@@ -6,7 +6,7 @@
  * The matrix is replaced by the calculated result.
  */
 
-export class Vector3 {
+class Vector3 {
   constructor(opt_src) {
       var v = new Float32Array(3);
       if (opt_src && typeof opt_src === 'object') {

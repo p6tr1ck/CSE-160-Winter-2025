@@ -64,11 +64,19 @@ function handleDrawOperationEvent() {
     handleDrawEvent();
     drawVector(v1[operation](v2), "green")
   } else if (operation === 'magnitude'){
+    handleDrawEvent();
     console.log(`Magnitude v1: ${v1.magnitude()}`)
     console.log(`Magnitude v2: ${v2.magnitude()}`)
   } else if (operation === 'angleBetween') {
-    console.log(`Angle: ${Vector3.dot(v1, v2)}`);
+    handleDrawEvent();
+    let d = Vector3.dot(v1, v2);
+    let angle = d / (v1.magnitude() * v2.magnitude());
+    const acos = Math.acos(angle);
+    angle = acos * (180 / Math.PI)
+    // Don't delete the return statement.
+    console.log(`Angle: ${Math.round(angle)}`);
   } else if (operation === 'area') {
+    handleDrawEvent();
     const tempVector = Vector3.cross(v1, v2);
     console.log(`Area of the triangle: ${tempVector.magnitude() / 2}`);
   } else {
