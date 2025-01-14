@@ -53,7 +53,7 @@ function handleDrawEvent() {
   drawVector(v1, "red");
   drawVector(v2, "blue");
 }
-function handleOperationEvent() {
+function handleDrawOperationEvent() {
   const operation = document.getElementById('operation').value;
   console.log(v1, v2);
   if (operation === 'add' || operation === 'sub') {
@@ -73,4 +73,4 @@ main();
 const draw1 = document.getElementById("draw1");
 const draw2 = document.getElementById("draw2");
 draw1.addEventListener("click", handleDrawEvent);
-draw2.addEventListener("click", handleOperationEvent)
+draw2.addEventListener("click", handleDrawOperationEvent)
