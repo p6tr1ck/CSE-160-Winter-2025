@@ -97,10 +97,15 @@ export class Vector3 {
     */
   static dot(other1, other2) {
       // Insert your code here.
-      let d = 0; // Modify this line to calculate this vector's magnitude.
-
+      let d = (other1.elements[0] * other2.elements[0]) + (other1.elements[1] * other2.elements[1]) + (other1.elements[2] * other2.elements[2]);
+      let m1 = other1.magnitude();
+      let m2 = other2.magnitude();
+      console.log(d, m1, m2);
+      d = d / (m1 * m2);
+      const acos = Math.acos(d);
+      d = acos * (180 / Math.PI)
       // Don't delete the return statement.
-      return d;
+      return Math.round(d);
   }
 
   /**
@@ -122,7 +127,7 @@ export class Vector3 {
     */
   magnitude() {
       // Insert your code here.
-      let m = 0; // Modify this line to calculate this vector's magnitude.
+      let m = Math.sqrt((this.elements[0])**2 + (this.elements[1])**2); // Modify this line to calculate this vector's magnitude.
 
       // Don't delete the return statement.
       return m;
@@ -135,7 +140,9 @@ export class Vector3 {
   normalize() {
       // Insert your code here.
       // This function should change this vector (this.elements) and not create a new vector.
-
+      const m = this.magnitude();
+      this.elements[0] /= m;
+      this.elements[1] /= m;
       // Don't delete the return statement.
       return this;
   };
