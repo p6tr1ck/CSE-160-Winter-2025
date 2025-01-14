@@ -18,7 +18,19 @@
       <p style="margin-left: 5px; margin-right: 5px;">y</p>
       <input style="height: 100%;" type="number" name="y2" id="y2">
     </div>
-    <button id="draw">Draw</button>
+    <button id="draw1">Draw</button>
+    <div style="display: flex; align-items: center;">
+      <p style="margin-right: 5px;">Operation: </p>
+      <select name="operation" id="operation">
+        <option value="add">Add</option>
+        <option value="sub">Subtract</option>
+        <option value="mul">Multiply</option>
+        <option value="div">Divide</option>
+      </select>
+      <p style="margin-left: 5px; margin-right: 5px;">Scalar: </p>
+      <input style="height: 100%;" type="number" name="scalar" id="scalar">
+    </div>
+    <button id="draw2">Draw</button>
     <script type="module" src="asg0.js"></script>
   </body>
 </html>
