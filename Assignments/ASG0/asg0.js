@@ -60,10 +60,16 @@ function handleDrawEvent() {
 function handleDrawOperationEvent() {
   createVectors();
   const operation = document.getElementById('operation').value;
-  if (operation === 'add' || operation === 'sub' || operation === 'normalize') {
+  if (operation === 'add' || operation === 'sub') {
     handleDrawEvent();
     drawVector(v1[operation](v2), "green")
-  } else if (operation === 'magnitude'){
+  } else if (operation === 'normalize') {
+    handleDrawEvent();
+    const n1 = v1.normalize();
+    const n2 = v2.normalize();
+    drawVector(n1, "green");
+    drawVector(n2, "green");
+  } else if (operation === 'magnitude') {
     handleDrawEvent();
     console.log(`Magnitude v1: ${v1.magnitude()}`)
     console.log(`Magnitude v2: ${v2.magnitude()}`)
