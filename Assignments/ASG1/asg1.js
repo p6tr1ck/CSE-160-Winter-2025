@@ -1,12 +1,3 @@
-class Point{
-  constructor() {
-    this.type = 'point';
-    this.position = [0.0, 0.0, 0.0];
-    this.color = [1.0, 1.0, 1.0, 1.0];
-    this.size = 5.0;
-  }
-}
-
 var VSHADER_SOURCE = `
   attribute vec4 a_Position;
   uniform float u_Size;
@@ -96,17 +87,6 @@ function click(ev) {
   point.color = g_selectedColor.slice();
   point.size = g_selectedSize;
   g_shapesList.push(point);
-  // g_points.push([x,y]);
-  // g_colors.push(g_selectedColor.slice());
-  // g_sizes.push(g_selectedSize);
-
-  // if (x >= 0.0 && y >= 0.0) {
-  //   g_colors.push([1.0, 0.0, 0.0, 1.0])
-  // } else if (x < 0.0 && y < 0.0) {
-  //   g_colors.push([0.0, 1.0, 0.0, 1.0]);
-  // } else {
-  //   g_colors.push([1.0,1.0,1.0,1.0]);
-  // }
   
   renderAllShapes();
 }
@@ -129,14 +109,7 @@ function renderAllShapes() {
 
   var len = g_shapesList.length;
   for (var i = 0; i < len; i++) {
-    var xy = g_shapesList[i].position;
-    var rgba = g_shapesList[i].color;
-    var size = g_shapesList[i].size;
-
-    gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
-    gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-    gl.uniform1f(u_Size, size);
-    gl.drawArrays(gl.POINTS, 0, 1);
+    g_shapesList[i].render();
   }
 }
 
