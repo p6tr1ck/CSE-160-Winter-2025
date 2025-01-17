@@ -57,6 +57,11 @@ let g_selectedColor = [1.0,1.0,1.0,1.0];
 function addActionsForHtmlUI() {
   document.getElementById('green').onclick = function() { g_selectedColor = [0.0,1.0,0.0,1.0]; };
   document.getElementById('red').onclick = function () { g_selectedColor = [1.0,0.0,0.0,1.0]; };
+
+  document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100; });
+  document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100; });
+  document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100; });
+
 }
 
 
@@ -67,7 +72,7 @@ function click(ev) {
   [x,y] = convertCoordinatesEventToGL(ev);
 
   g_points.push([x,y]);
-  g_colors.push(g_selectedColor);
+  g_colors.push(g_selectedColor.slice());
   // if (x >= 0.0 && y >= 0.0) {
   //   g_colors.push([1.0, 0.0, 0.0, 1.0])
   // } else if (x < 0.0 && y < 0.0) {
