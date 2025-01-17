@@ -51,14 +51,14 @@ function connectVariablesToGLSL() {
   }
 }
 
-function main() {
-  setupWebGL();
-  connectVariablesToGLSL();
 
-  canvas.onmousedown = click;
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+let g_selectedColor = [1.0,1.0,1.0,1.0];
+
+function addActionsForHtmlUI() {
+  document.getElementById('green').onclick = function() { g_selectedColor = [0.0,1.0,0.0,1.0]; };
+  document.getElementById('red').onclick = function () { g_selectedColor = [1.0,0.0,0.0,1.0]; };
 }
+
 
 
 var g_points = [];  // The array for the position of a mouse press
@@ -67,14 +67,14 @@ function click(ev) {
   [x,y] = convertCoordinatesEventToGL(ev);
 
   g_points.push([x,y]);
-
-  if (x >= 0.0 && y >= 0.0) {
-    g_colors.push([1.0, 0.0, 0.0, 1.0])
-  } else if (x < 0.0 && y < 0.0) {
-    g_colors.push([0.0, 1.0, 0.0, 1.0]);
-  } else {
-    g_colors.push([1.0,1.0,1.0,1.0]);
-  }
+  g_colors.push(g_selectedColor);
+  // if (x >= 0.0 && y >= 0.0) {
+  //   g_colors.push([1.0, 0.0, 0.0, 1.0])
+  // } else if (x < 0.0 && y < 0.0) {
+  //   g_colors.push([0.0, 1.0, 0.0, 1.0]);
+  // } else {
+  //   g_colors.push([1.0,1.0,1.0,1.0]);
+  // }
   
   renderAllShapes();
 }
@@ -105,3 +105,13 @@ function renderAllShapes() {
     gl.drawArrays(gl.POINTS, 0, 1);
   }
 }
+
+function main() {
+  setupWebGL();
+  connectVariablesToGLSL();
+  addActionsForHtmlUI();
+  canvas.onmousedown = click;
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+}
+
