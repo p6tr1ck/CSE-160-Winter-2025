@@ -24,8 +24,9 @@ let u_Size;
 
 function setupWebGL() {
   canvas = document.getElementById('webgl');
-  gl = getWebGLContext(canvas);
-  
+  // gl = getWebGLContext(canvas);
+  gl = canvas.getContext("webgl", { preserveDrawingBuffer: true});
+
   if (!gl) {
     console.log('Failed to get the rendering context for WebGL');
     return;
@@ -106,12 +107,15 @@ function convertCoordinatesEventToGL(ev) {
 
 
 function renderAllShapes() {
+  var startTime = performance.now();
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   var len = g_shapesList.length;
   for (var i = 0; i < len; i++) {
     g_shapesList[i].render();
   }
+  var duration = performance.now() - startTime;
+  sendTextToHTML(`numdot: ${len} ms: ${Math.floor(duration)} fps: ${Math.floor(10000/duration)/10}`, 'numdot');
 }
 
 function main() {
@@ -119,6 +123,17 @@ function main() {
   connectVariablesToGLSL();
   addActionsForHtmlUI();
   canvas.onmousedown = click;
+  canvas.onmousemove = function(ev) { if (ev.buttons == 1) (click (ev) )}
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
+}
+
+
+function sendTextToHTML(text, htmlID) {
+  var htmlElm = document.getElementById(htmlID);
+  if (!htmlElm) {
+    console.log(`Failed to get ${htmlID} from HTML`);
+    return;
+  }
+  htmlElm.innerHTML = text;
 }
