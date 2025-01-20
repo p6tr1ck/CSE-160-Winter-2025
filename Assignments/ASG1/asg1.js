@@ -69,6 +69,46 @@ let g_selectedSize = 5;
 let g_selectedType = POINT;
 let segments = 10;
 
+function drawTop() {
+  const blue = [0.0,0.0,1.0,1.0]
+  drawTriangleColor([0.0, 0.6, 0.0, 0.4, 0.1, 0.4], blue);
+  drawTriangleColor([0.2, 0.6, 0.1, 0.4, 0.0, 0.6], blue);
+  drawTriangleColor([0.2, 0.6, 0.1, 0.4, 0.2, 0.4], blue);
+
+  drawTriangleColor([0.0, 0.6, 0.0, 0.4, -0.1, 0.4], blue);
+  drawTriangleColor([0.0, 0.6, -0.2, 0.6, -0.1, 0.4], blue);
+  drawTriangleColor([-0.2, 0.4, -0.2, 0.6, -0.1, 0.4], blue);
+
+  drawTriangleColor([0.2, 0.6, 0.2, 0.4, 0.3, 0.4], blue);
+  drawTriangleColor([0.4, 0.6, 0.3, 0.4, 0.2, 0.6], blue);
+  drawTriangleColor([0.4, 0.6, 0.3, 0.4, 0.4, 0.4], blue);
+
+  drawTriangleColor([-0.2, 0.6, -0.2, 0.4, -0.3, 0.4], blue);
+  drawTriangleColor([-0.2, 0.6, -0.4, 0.6, -0.3, 0.4], blue);
+  drawTriangleColor([-0.4, 0.4, -0.4, 0.6, -0.3, 0.4], blue);
+
+  drawTriangleColor([-0.6, 0.4, -0.4, 0.4, -0.4, 0.6], blue);
+  drawTriangleColor([0.6, 0.4, 0.4, 0.4, 0.4, 0.6], blue);
+}
+
+
+function drawBottom() {
+  const blue = [0.0,0.0,1.0,1.0]
+  drawTriangleColor([0, 0.4, 0, -0.5, 0.2, 0.4], blue);
+  drawTriangleColor([0.4, 0.6, 0, -0.5, 0.2, 0.4], blue);
+  drawTriangleColor([0.4, 0.6, 0, -0.5, 0.6, 0.4], blue);
+
+  drawTriangleColor([0, 0.4, 0, -0.5, -0.2, 0.4], blue);
+  drawTriangleColor([-0.4, 0.6, 0, -0.5, -0.2, 0.4], blue);
+  drawTriangleColor([-0.4, 0.6, 0, -0.5, -0.6, 0.4], blue);
+}
+
+
+function draw() {
+  drawTop();
+  drawBottom();
+}
+
 function addActionsForHtmlUI() {
   document.getElementById('green').onclick = function() { g_selectedColor = [0.0,1.0,0.0,1.0]; };
   document.getElementById('red').onclick = function () { g_selectedColor = [1.0,0.0,0.0,1.0]; };
@@ -81,16 +121,13 @@ function addActionsForHtmlUI() {
   document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100; });
   document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100; });
   document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100; });
+  document.getElementById('image').onclick = function() { draw() }
 
   document.getElementById('sizeSlide').addEventListener('mouseup', function () { g_selectedSize = this.value });
   document.getElementById('segmentSlide').addEventListener('mouseup', function () { segments = this.value });
 }
 
-
 var g_shapesList = [];
-// var g_points = [];  // The array for the position of a mouse press
-// var g_colors = [];  // The array to store the color of a point
-// var g_sizes = [];
 function click(ev) {
   [x,y] = convertCoordinatesEventToGL(ev);
 

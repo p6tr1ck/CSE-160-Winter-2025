@@ -35,3 +35,21 @@ function drawTriangle(vertices) {
   gl.enableVertexAttribArray(a_Position);
   gl.drawArrays(gl.TRIANGLES, 0, n);
 }
+
+function drawTriangleColor(vertices, c) {
+  var n = 3;
+  var vertexBuffer = gl.createBuffer();
+  if (!vertexBuffer) {
+    console.log("Failed to create the buffer object");
+    return -1;
+  }
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
+
+
+  gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(a_Position);
+  gl.uniform4fv(u_FragColor, new Float32Array(c));
+  gl.drawArrays(gl.TRIANGLES, 0, n);
+}
