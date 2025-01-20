@@ -109,18 +109,68 @@ function draw() {
   drawBottom();
 }
 
+function removeActiveColors() {
+  const colors = document.querySelectorAll('.color');
+  colors.forEach((color) => {
+    if ("active" === color.classList[1]) {
+      color.classList.remove("active");
+      color.classList.add("inactive");
+    }
+  })
+}
+
+
+function changeCurrent() {
+  const currentColor = document.getElementById("current")
+  currentColor.style.backgroundColor = `rgb(${g_selectedColor[0] * 255}, ${g_selectedColor[1] * 255}, ${g_selectedColor[2] * 255})`;
+  removeActiveColors();
+  currentColor.classList.remove('inactive');
+  currentColor.classList.add('active');
+}
+
+
 function addActionsForHtmlUI() {
-  document.getElementById('green').onclick = function() { g_selectedColor = [0.0,1.0,0.0,1.0]; };
-  document.getElementById('red').onclick = function () { g_selectedColor = [1.0,0.0,0.0,1.0]; };
+  const green = document.getElementById('green');
+  const red = document.getElementById('red');
+  const current = document.getElementById("current");
+  green.onclick = function() { 
+    g_selectedColor = [0.0,1.0,0.0,1.0]; 
+    removeActiveColors();
+    this.classList.remove("inactive");
+    this.classList.add("active");
+  };
+
+  red.onclick = function () { 
+    g_selectedColor = [1.0,0.0,0.0,1.0];
+    removeActiveColors();
+    this.classList.remove("inactive");
+    this.classList.add("active");
+  };
+
+  current.onclick = function () { 
+    removeActiveColors();
+    this.classList.remove("inactive");
+    this.classList.add("active");
+  };
+
   document.getElementById('clearButton').onclick = function () { g_shapesList = []; renderAllShapes(); };
 
   document.getElementById('pointButton').onclick = function() {g_selectedType=POINT};
   document.getElementById('triButton').onclick = function() {g_selectedType=TRIANGLE};
   document.getElementById('circleButton').onclick = function() {g_selectedType=CIRCLE}
 
-  document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100; });
-  document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100; });
-  document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100; });
+  document.getElementById('redSlide').addEventListener('mouseup', function() { 
+    g_selectedColor[0] = this.value/100; 
+    changeCurrent(); 
+  });
+  document.getElementById('greenSlide').addEventListener('mouseup', function() { 
+    g_selectedColor[1] = this.value/100; 
+    changeCurrent(); 
+  });
+  document.getElementById('blueSlide').addEventListener('mouseup', function() { 
+    g_selectedColor[2] = this.value/100; 
+    changeCurrent(); 
+  });
   document.getElementById('image').onclick = function() { draw() }
 
   document.getElementById('sizeSlide').addEventListener('mouseup', function () { g_selectedSize = this.value });
