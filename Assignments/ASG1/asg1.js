@@ -62,11 +62,12 @@ function connectVariablesToGLSL() {
 
 const POINT = 0;
 const TRIANGLE = 1;
-
+const CIRCLE = 2;
 
 let g_selectedColor = [1.0,1.0,1.0,1.0];
 let g_selectedSize = 5;
 let g_selectedType = POINT;
+let segments = 10;
 
 function addActionsForHtmlUI() {
   document.getElementById('green').onclick = function() { g_selectedColor = [0.0,1.0,0.0,1.0]; };
@@ -75,12 +76,14 @@ function addActionsForHtmlUI() {
 
   document.getElementById('pointButton').onclick = function() {g_selectedType=POINT};
   document.getElementById('triButton').onclick = function() {g_selectedType=TRIANGLE};
+  document.getElementById('circleButton').onclick = function() {g_selectedType=CIRCLE}
 
   document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100; });
   document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100; });
   document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100; });
 
   document.getElementById('sizeSlide').addEventListener('mouseup', function () { g_selectedSize = this.value });
+  document.getElementById('segmentSlide').addEventListener('mouseup', function () { segments = this.value });
 }
 
 
@@ -94,8 +97,11 @@ function click(ev) {
   let point;
   if (g_selectedType == POINT) {
     point = new Point();
-  } else {
+  } else if (g_selectedType == TRIANGLE) {
     point = new Triangle();
+  } else {
+    point = new Circle();
+    point.segments = segments;
   }
   point.position = [x,y];
   point.color = g_selectedColor.slice();
