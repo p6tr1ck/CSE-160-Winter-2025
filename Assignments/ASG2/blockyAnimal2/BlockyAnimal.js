@@ -1,9 +1,8 @@
 var VSHADER_SOURCE = `
   attribute vec4 a_Position;
-  uniform float u_Size;
+  uniform mat4 u_ModelMatrix;
   void main() {
-    gl_Position = a_Position;
-    gl_PointSize = u_Size;
+    gl_Position = u_ModelMatrix * a_Position;
   }`;
 
 var FSHADER_SOURCE = `
@@ -48,11 +47,19 @@ function connectVariablesToGLSL() {
     return;
   }
 
-  u_Size = gl.getUniformLocation(gl.program, "u_Size");
-  if (!u_Size) {
-    console.log("Failed to get the storage location of u_Size");
+  u_ModelMatrix = gl.getUniformLocation(gl.program, "u_ModelMatrix");
+  if (!u_ModelMatrix) {
+    console.log("Failed to get the storage location of u_ModelMatrix");
     return;
   }
+
+  var identityM = new Matrix4();
+  gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
+  // u_Size = gl.getUniformLocation(gl.program, "u_Size");
+  // if (!u_Size) {
+  //   console.log("Failed to get the storage location of u_Size");
+  //   return;
+  // }
 }
 
 const POINT = 0;
@@ -234,13 +241,20 @@ function renderAllShapes() {
 
   var body = new Cube();
   body.color = [1.0, 0.0, 0.0, 1.0];
+  body.matrix.setTranslate(-0.25, -0.5, 0.0);
+  body.matrix.scale(0.5, 1, 0.5);
   body.render();
+
+  var leftArm = new Cube();
+  leftArm.color = [1, 1, 0, 1];
+  leftArm.matrix.setTranslate(0.7, 0, 0.0);
+  leftArm.matrix.rotate(45, 0, 0, 1);
+  leftArm.matrix.scale(0.25, 0.7, 0.5);
+  leftArm.render();
 
   var duration = performance.now() - startTime;
   sendTextToHTML(
-    `numdot: ${len} ms: ${Math.floor(duration)} fps: ${
-      Math.floor(10000 / duration) / 10
-    }`,
+    `ms: ${Math.floor(duration)} fps: ${Math.floor(10000 / duration) / 10}`,
     "numdot"
   );
 }
