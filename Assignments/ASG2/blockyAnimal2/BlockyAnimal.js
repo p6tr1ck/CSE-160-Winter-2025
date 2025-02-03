@@ -84,9 +84,10 @@ let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 5;
 let g_selectedType = POINT;
 let g_globalAngle = 0;
-let g_yellowAngle = 0;
+let g_jointAngle = 0;
 let g_magentaAngle = 0;
-let g_yellowAnimation = false;
+let g_tail = 0;
+let g_tailAnimation = false;
 let segments = 10;
 
 function drawTop() {
@@ -127,121 +128,38 @@ function draw() {
   drawBottom();
 }
 
-// function removeActiveColors() {
-//   const colors = document.querySelectorAll(".color");
-//   colors.forEach((color) => {
-//     if ("active" === color.classList[1]) {
-//       color.classList.remove("active");
-//       color.classList.add("inactive");
-//     }
-//   });
-// }
-
-// function changeCurrent() {
-//   const currentColor = document.getElementById("current");
-//   currentColor.style.backgroundColor = `rgb(${g_selectedColor[0] * 255}, ${
-//     g_selectedColor[1] * 255
-//   }, ${g_selectedColor[2] * 255})`;
-//   removeActiveColors();
-//   currentColor.classList.remove("inactive");
-//   currentColor.classList.add("active");
-// }
-
 function addActionsForHtmlUI() {
-  // const green = document.getElementById("green");
-  // const red = document.getElementById("red");
-  // const current = document.getElementById("current");
-  // green.onclick = function () {
-  //   g_selectedColor = [0.0, 1.0, 0.0, 1.0];
-  //   removeActiveColors();
-  //   this.classList.remove("inactive");
-  //   this.classList.add("active");
-  // };
-
-  // red.onclick = function () {
-  //   g_selectedColor = [1.0, 0.0, 0.0, 1.0];
-  //   removeActiveColors();
-  //   this.classList.remove("inactive");
-  //   this.classList.add("active");
-  // };
-
-  // current.onclick = function () {
-  //   removeActiveColors();
-  //   this.classList.remove("inactive");
-  //   this.classList.add("active");
-  // };
-
-  // document.getElementById("clearButton").onclick = function () {
-  //   g_shapesList = [];
-  //   renderAllShapes();
-  // };
-
-  // document.getElementById("pointButton").onclick = function () {
-  //   g_selectedType = POINT;
-  // };
-  // document.getElementById("triButton").onclick = function () {
-  //   g_selectedType = TRIANGLE;
-  // };
-  // document.getElementById("circleButton").onclick = function () {
-  //   g_selectedType = CIRCLE;
-  // };
-
-  // document.getElementById("redSlide").addEventListener("mouseup", function () {
-  //   g_selectedColor[0] = this.value / 100;
-  //   changeCurrent();
-  // });
-  // document
-  //   .getElementById("greenSlide")
-  //   .addEventListener("mouseup", function () {
-  //     g_selectedColor[1] = this.value / 100;
-  //     changeCurrent();
-  //   });
-  // document.getElementById("blueSlide").addEventListener("mouseup", function () {
-  //   g_selectedColor[2] = this.value / 100;
-  //   changeCurrent();
-  // });
-  // document.getElementById("image").onclick = function () {
-  //   draw();
-  // };
-
-  // document.getElementById("sizeSlide").addEventListener("mouseup", function () {
-  //   g_selectedSize = this.value;
-  // });
-  // document
-  //   .getElementById("segmentSlide")
-  //   .addEventListener("mouseup", function () {
-  //     segments = this.value;
-  //   });
   document.getElementById("animationYellowOffButton").onclick = function () {
-    g_yellowAnimation = false;
+    g_tailAnimation = false;
   };
   document.getElementById("animationYellowOnButton").onclick = function () {
-    g_yellowAnimation = true;
+    g_tailAnimation = true;
   };
 
   document
-    .getElementById("magentaSlide")
+    .getElementById("jointSlide")
     .addEventListener("mousemove", function () {
-      g_magentaAngle = this.value;
-      renderAllShapes();
-    });
-  document
-    .getElementById("yellowSlide")
-    .addEventListener("mousemove", function () {
-      g_yellowAngle = this.value;
-      renderAllShapes();
+      g_jointAngle = this.value;
+      renderScene();
     });
 
   document
     .getElementById("angleSlide")
     .addEventListener("mousemove", function () {
       g_globalAngle = this.value;
-      renderAllShapes();
+      renderScene();
     });
 }
+let g_explosion = false;
 
 var g_shapesList = [];
 function click(ev) {
+  if (ev.shiftKey) {
+    g_explosion = !g_explosion;
+    renderScene();
+    return;
+  }
+
   [x, y] = convertCoordinatesEventToGL(ev);
 
   let point;
@@ -258,7 +176,7 @@ function click(ev) {
   point.size = g_selectedSize;
   g_shapesList.push(point);
 
-  renderAllShapes();
+  renderScene();
 }
 
 function convertCoordinatesEventToGL(ev) {
@@ -273,7 +191,7 @@ function convertCoordinatesEventToGL(ev) {
 }
 
 // draw all the cubes in one place here
-function renderAllShapes() {
+function renderScene() {
   var startTime = performance.now();
 
   var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
@@ -282,32 +200,34 @@ function renderAllShapes() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
+  var offset = g_explosion ? 0.5 : 0;
+
   var body = new Cube();
   body.color = [0.6, 0.3, 0.0, 1.0];
-  body.matrix.setTranslate(-0.2, -0.4, 0.0);
+  body.matrix.setTranslate(-0.2, -0.4 + offset, 0.0);
   body.matrix.scale(0.6, 0.3, 0.3);
   body.render();
 
   var head = new Cube();
   head.color = [0.6, 0.3, 0.0, 1.0];
-  head.matrix.setTranslate(0.25, -0.2, 0);
+  head.matrix.setTranslate(0.25, -0.2 + offset * 0.4, 0);
   head.matrix.scale(0.3, 0.3, 0.3);
   head.render();
 
   var snout = new Cube();
   snout.color = [0.4, 0.2, 0.0, 1.0];
-  snout.matrix.setTranslate(0.5, -0.1, 0.08);
+  snout.matrix.setTranslate(0.5, -0.1 + offset, 0.08);
   snout.matrix.scale(0.12, 0.1, 0.12);
   snout.render();
 
   var leftEar = new Cone(0.05, 0.1, 20);
   leftEar.color = [0.5, 0.2, 0.0, 1.0];
-  leftEar.matrix.setTranslate(0.5, 0.1, 0.25);
+  leftEar.matrix.setTranslate(0.5, 0.1 + offset, 0.25);
   leftEar.render();
 
   var rightEar = new Cone(0.05, 0.1, 20);
   rightEar.color = [0.5, 0.2, 0.0, 1.0];
-  rightEar.matrix.setTranslate(0.5, 0.1, 0.05);
+  rightEar.matrix.setTranslate(0.5, 0.1 + offset, 0.05);
   rightEar.render();
 
   let legPositions = [
@@ -316,13 +236,12 @@ function renderAllShapes() {
     [-0.2, -0.6, 0], // bottom left
     [0.3, -0.6, 0], // top left
   ];
-
   for (let i = 0; i < 4; i++) {
     let upperLeg = new Cube();
     upperLeg.color = [0.5, 0.2, 0.0, 1.0];
     upperLeg.matrix.setTranslate(
-      legPositions[i][0],
-      legPositions[i][1],
+      legPositions[i][0] + (g_explosion ? (i % 2 === 0 ? -0.3 : 0.3) : 0),
+      legPositions[i][1] + offset,
       legPositions[i][2]
     );
     upperLeg.matrix.scale(0.1, 0.2, 0.1);
@@ -330,20 +249,36 @@ function renderAllShapes() {
 
     let lowerLeg = new Cube();
     lowerLeg.color = [0.5, 0.2, 0.0, 1.0];
+
     lowerLeg.matrix.setTranslate(
       legPositions[i][0],
       legPositions[i][1] - 0.2,
       legPositions[i][2]
     );
-    lowerLeg.matrix.rotate(g_yellowAngle, 1, 0, 0); // joint bend
+
+    lowerLeg.matrix.rotate(g_jointAngle, 0, 0, 1);
+
     lowerLeg.matrix.scale(0.1, 0.2, 0.1);
     lowerLeg.render();
+
+    let paw = new Cube();
+    paw.color = [0.4, 0.2, 0.0, 1.0];
+    paw.matrix.setTranslate(
+      legPositions[i][0] + 0.02,
+      legPositions[i][1] - 0.2,
+      legPositions[i][2]
+    );
+    paw.matrix.rotate(g_jointAngle, 0, 0, 1);
+    paw.matrix.scale(0.12, 0.05, 0.12);
+    paw.render();
   }
 
   var tail = new Cube();
   tail.color = [0.5, 0.2, 0.0, 1.0];
-  tail.matrix.setTranslate(-0.2, -0.1, 0.05);
-  tail.matrix.rotate(15 * Math.sin(g_seconds), 0, 0, 1); // wagging
+
+  tail.matrix.setTranslate(-0.2 - offset, -0.1, 0.05);
+  tail.matrix.rotate(-g_tail, 0, 0, 1);
+
   tail.matrix.scale(0.08, 0.3, 0.08);
   tail.render();
 
@@ -374,7 +309,7 @@ function main() {
   canvas.onmousemove = function (ev) {
     if (ev.buttons == 1) click(ev);
   };
-  gl.clearColor(1.0, 0.0, 0.0, 1.0);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
   requestAnimationFrame(tick);
 }
@@ -385,13 +320,15 @@ var g_seconds = performance.now() / 1000.0 - g_startTime;
 function tick() {
   g_seconds = performance.now() / 1000.0 - g_startTime;
   updateAnimationAngles();
-  renderAllShapes();
+  renderScene();
   requestAnimationFrame(tick);
 }
 
 function updateAnimationAngles() {
-  if (g_yellowAnimation) {
-    g_yellowAngle = 45 * Math.sin(g_seconds);
+  if (g_tailAnimation) {
+    g_tail = 45 * Math.sin(g_seconds);
+  } else {
+    g_tail = 0;
   }
 }
 
