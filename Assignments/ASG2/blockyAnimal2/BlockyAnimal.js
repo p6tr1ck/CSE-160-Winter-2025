@@ -300,16 +300,14 @@ function renderAllShapes() {
   snout.matrix.scale(0.12, 0.1, 0.12);
   snout.render();
 
-  var leftEar = new Cube();
+  var leftEar = new Cone(0.05, 0.1, 20);
   leftEar.color = [0.5, 0.2, 0.0, 1.0];
-  leftEar.matrix.setTranslate(0.4, 0.1, 0.25);
-  leftEar.matrix.scale(0.08, 0.15, 0.05);
+  leftEar.matrix.setTranslate(0.5, 0.1, 0.25);
   leftEar.render();
 
-  var rightEar = new Cube();
+  var rightEar = new Cone(0.05, 0.1, 20);
   rightEar.color = [0.5, 0.2, 0.0, 1.0];
-  rightEar.matrix.setTranslate(0.4, 0.1, 0);
-  rightEar.matrix.scale(0.08, 0.15, 0.05);
+  rightEar.matrix.setTranslate(0.5, 0.1, 0.05);
   rightEar.render();
 
   let legPositions = [
@@ -356,47 +354,10 @@ function renderAllShapes() {
   leftEye.render();
 
   var rightEye = new Cube();
-  rightEye.color = [0, 0, 0, 1]; // Black
+  rightEye.color = [0, 0, 0, 1];
   rightEye.matrix.setTranslate(0.53, 0.02, 0.05);
   rightEye.matrix.scale(0.03, 0.05, 0.05);
   rightEye.render();
-
-  // var body = new Cube();
-  // body.color = [1.0, 0.0, 0.0, 1.0];
-  // body.matrix.translate(-0.25, -0.75, 0.0);
-  // body.matrix.rotate(-5, 1, 0, 0);
-  // body.matrix.scale(0.5, 0.3, 0.5);
-  // body.render();
-
-  // var yellow = new Cube();
-  // yellow.color = [1, 1, 0, 1];
-  // yellow.matrix.setTranslate(0, -0.5, 0.0);
-  // yellow.matrix.rotate(-5, 1, 0, 0);
-  // yellow.matrix.rotate(-g_yellowAngle, 0, 0, 1);
-
-  // // if (g_yellowAnimation) {
-  // //   yellow.matrix.rotate(45 * Math.sin(g_seconds), 0, 0, 1);
-  // // } else {
-  // //   yellow.matrix.rotate(g_yellowAngle, 0, 0, 1);
-  // // }
-
-  // // leftArm.matrix.rotate(-g_yellowAngle, 0, 0, 1);
-  // var yellowCoordinatesMat = new Matrix4(yellow.matrix);
-  // yellow.matrix.scale(0.25, 0.7, 0.5);
-  // yellow.matrix.translate(-0.5, 0, 0);
-  // yellow.render();
-
-  // var box = new Cube();
-  // box.color = [1, 0, 1, 1];
-  // box.matrix = yellowCoordinatesMat;
-  // box.matrix.translate(0, 0.65, 0);
-  // box.matrix.rotate(g_magentaAngle, 0, 0, 1);
-  // box.matrix.scale(0.3, 0.3, 0.3);
-  // box.matrix.translate(-0.5, 0, -0.001);
-  // // box.matrix.translate(-0.1, 0.1, 0.0, 0);
-  // // box.matrix.rotate(-30, 1, 0, 0);
-  // // box.matrix.scale(0.2, 0.4, 0.2);
-  // box.render();
 
   var duration = performance.now() - startTime;
   sendTextToHTML(
