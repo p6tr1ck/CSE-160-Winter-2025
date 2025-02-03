@@ -1,8 +1,9 @@
 var VSHADER_SOURCE = `
   attribute vec4 a_Position;
   uniform mat4 u_ModelMatrix;
+  uniform mat4 u_GlobalRotateMatrix;
   void main() {
-    gl_Position = u_ModelMatrix * a_Position;
+    gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
   }`;
 
 var FSHADER_SOURCE = `
@@ -17,6 +18,8 @@ let gl;
 let a_Position;
 let u_FragColor;
 let u_Size;
+let u_ModelMatrix;
+let u_GlobalRotateMatrix;
 
 function setupWebGL() {
   canvas = document.getElementById("webgl");
@@ -53,6 +56,15 @@ function connectVariablesToGLSL() {
     return;
   }
 
+  u_GlobalRotateMatrix = gl.getUniformLocation(
+    gl.program,
+    "u_GlobalRotateMatrix"
+  );
+  if (!u_GlobalRotateMatrix) {
+    console.log("Failed to get the storage location of u_GlobalRotateMatrix");
+    return;
+  }
+
   var identityM = new Matrix4();
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
   // u_Size = gl.getUniformLocation(gl.program, "u_Size");
@@ -69,6 +81,7 @@ const CIRCLE = 2;
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 5;
 let g_selectedType = POINT;
+let g_globalAngle = 0;
 let segments = 10;
 
 function drawTop() {
@@ -194,6 +207,13 @@ function addActionsForHtmlUI() {
     .addEventListener("mouseup", function () {
       segments = this.value;
     });
+
+  document
+    .getElementById("angleSlide")
+    .addEventListener("mousemove", function () {
+      g_globalAngle = this.value;
+      renderAllShapes();
+    });
 }
 
 var g_shapesList = [];
@@ -230,12 +250,11 @@ function convertCoordinatesEventToGL(ev) {
 
 function renderAllShapes() {
   var startTime = performance.now();
-  gl.clear(gl.COLOR_BUFFER_BIT);
 
-  // var len = g_shapesList.length;
-  // for (var i = 0; i < len; i++) {
-  //   g_shapesList[i].render();
-  // }
+  var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
+  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+
+  gl.clear(gl.COLOR_BUFFER_BIT);
 
   drawTriangle3D([-1.0, 0.0, 0.0, -0.5, -1.0, 0.0, 0.0, 0.0, 0.0]);
 
