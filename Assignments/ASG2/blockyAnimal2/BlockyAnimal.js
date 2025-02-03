@@ -30,6 +30,8 @@ function setupWebGL() {
     console.log("Failed to get the rendering context for WebGL");
     return;
   }
+
+  gl.enable(gl.DEPTH_TEST);
 }
 
 function connectVariablesToGLSL() {
@@ -82,6 +84,7 @@ let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 5;
 let g_selectedType = POINT;
 let g_globalAngle = 0;
+let g_yellowAngle = 0;
 let segments = 10;
 
 function drawTop() {
@@ -122,90 +125,97 @@ function draw() {
   drawBottom();
 }
 
-function removeActiveColors() {
-  const colors = document.querySelectorAll(".color");
-  colors.forEach((color) => {
-    if ("active" === color.classList[1]) {
-      color.classList.remove("active");
-      color.classList.add("inactive");
-    }
-  });
-}
+// function removeActiveColors() {
+//   const colors = document.querySelectorAll(".color");
+//   colors.forEach((color) => {
+//     if ("active" === color.classList[1]) {
+//       color.classList.remove("active");
+//       color.classList.add("inactive");
+//     }
+//   });
+// }
 
-function changeCurrent() {
-  const currentColor = document.getElementById("current");
-  currentColor.style.backgroundColor = `rgb(${g_selectedColor[0] * 255}, ${
-    g_selectedColor[1] * 255
-  }, ${g_selectedColor[2] * 255})`;
-  removeActiveColors();
-  currentColor.classList.remove("inactive");
-  currentColor.classList.add("active");
-}
+// function changeCurrent() {
+//   const currentColor = document.getElementById("current");
+//   currentColor.style.backgroundColor = `rgb(${g_selectedColor[0] * 255}, ${
+//     g_selectedColor[1] * 255
+//   }, ${g_selectedColor[2] * 255})`;
+//   removeActiveColors();
+//   currentColor.classList.remove("inactive");
+//   currentColor.classList.add("active");
+// }
 
 function addActionsForHtmlUI() {
-  const green = document.getElementById("green");
-  const red = document.getElementById("red");
-  const current = document.getElementById("current");
-  green.onclick = function () {
-    g_selectedColor = [0.0, 1.0, 0.0, 1.0];
-    removeActiveColors();
-    this.classList.remove("inactive");
-    this.classList.add("active");
-  };
+  // const green = document.getElementById("green");
+  // const red = document.getElementById("red");
+  // const current = document.getElementById("current");
+  // green.onclick = function () {
+  //   g_selectedColor = [0.0, 1.0, 0.0, 1.0];
+  //   removeActiveColors();
+  //   this.classList.remove("inactive");
+  //   this.classList.add("active");
+  // };
 
-  red.onclick = function () {
-    g_selectedColor = [1.0, 0.0, 0.0, 1.0];
-    removeActiveColors();
-    this.classList.remove("inactive");
-    this.classList.add("active");
-  };
+  // red.onclick = function () {
+  //   g_selectedColor = [1.0, 0.0, 0.0, 1.0];
+  //   removeActiveColors();
+  //   this.classList.remove("inactive");
+  //   this.classList.add("active");
+  // };
 
-  current.onclick = function () {
-    removeActiveColors();
-    this.classList.remove("inactive");
-    this.classList.add("active");
-  };
+  // current.onclick = function () {
+  //   removeActiveColors();
+  //   this.classList.remove("inactive");
+  //   this.classList.add("active");
+  // };
 
-  document.getElementById("clearButton").onclick = function () {
-    g_shapesList = [];
-    renderAllShapes();
-  };
+  // document.getElementById("clearButton").onclick = function () {
+  //   g_shapesList = [];
+  //   renderAllShapes();
+  // };
 
-  document.getElementById("pointButton").onclick = function () {
-    g_selectedType = POINT;
-  };
-  document.getElementById("triButton").onclick = function () {
-    g_selectedType = TRIANGLE;
-  };
-  document.getElementById("circleButton").onclick = function () {
-    g_selectedType = CIRCLE;
-  };
+  // document.getElementById("pointButton").onclick = function () {
+  //   g_selectedType = POINT;
+  // };
+  // document.getElementById("triButton").onclick = function () {
+  //   g_selectedType = TRIANGLE;
+  // };
+  // document.getElementById("circleButton").onclick = function () {
+  //   g_selectedType = CIRCLE;
+  // };
 
-  document.getElementById("redSlide").addEventListener("mouseup", function () {
-    g_selectedColor[0] = this.value / 100;
-    changeCurrent();
-  });
+  // document.getElementById("redSlide").addEventListener("mouseup", function () {
+  //   g_selectedColor[0] = this.value / 100;
+  //   changeCurrent();
+  // });
+  // document
+  //   .getElementById("greenSlide")
+  //   .addEventListener("mouseup", function () {
+  //     g_selectedColor[1] = this.value / 100;
+  //     changeCurrent();
+  //   });
+  // document.getElementById("blueSlide").addEventListener("mouseup", function () {
+  //   g_selectedColor[2] = this.value / 100;
+  //   changeCurrent();
+  // });
+  // document.getElementById("image").onclick = function () {
+  //   draw();
+  // };
+
+  // document.getElementById("sizeSlide").addEventListener("mouseup", function () {
+  //   g_selectedSize = this.value;
+  // });
+  // document
+  //   .getElementById("segmentSlide")
+  //   .addEventListener("mouseup", function () {
+  //     segments = this.value;
+  //   });
+
   document
-    .getElementById("greenSlide")
-    .addEventListener("mouseup", function () {
-      g_selectedColor[1] = this.value / 100;
-      changeCurrent();
-    });
-  document.getElementById("blueSlide").addEventListener("mouseup", function () {
-    g_selectedColor[2] = this.value / 100;
-    changeCurrent();
-  });
-  document.getElementById("image").onclick = function () {
-    draw();
-  };
-
-  document.getElementById("sizeSlide").addEventListener("mouseup", function () {
-    g_selectedSize = this.value;
-  });
-  document
-    .getElementById("segmentSlide")
-    .addEventListener("mouseup", function () {
-      segments = this.value;
+    .getElementById("yellowSlide")
+    .addEventListener("mousemove", function () {
+      g_yellowAngle = this.value;
+      renderAllShapes();
     });
 
   document
@@ -255,26 +265,30 @@ function renderAllShapes() {
   var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   var body = new Cube();
   body.color = [1.0, 0.0, 0.0, 1.0];
-  body.matrix.setTranslate(-0.25, -0.5, 0.0);
-  body.matrix.scale(0.5, 1, 0.5);
+  body.matrix.translate(-0.25, -0.75, 0.0);
+  body.matrix.rotate(-5, 1, 0, 0);
+  body.matrix.scale(0.5, 0.3, 0.5);
   body.render();
 
   var leftArm = new Cube();
   leftArm.color = [1, 1, 0, 1];
-  leftArm.matrix.setTranslate(0.7, 0, 0.0);
-  leftArm.matrix.rotate(45, 0, 0, 1);
+  leftArm.matrix.setTranslate(0, -0.5, 0.0);
+  leftArm.matrix.rotate(-5, 1, 0, 0);
+  leftArm.matrix.rotate(-g_yellowAngle, 0, 0, 1);
   leftArm.matrix.scale(0.25, 0.7, 0.5);
+  leftArm.matrix.translate(-0.5, 0, 0);
   leftArm.render();
 
   var box = new Cube();
   box.color = [1, 0, 1, 1];
-  box.matrix.translate(0, 0, -0.5, 0);
+  box.matrix.translate(-0.1, 0.1, 0.0, 0);
   box.matrix.rotate(-30, 1, 0, 0);
-  box.matrix.scale(0.5, 0.5, 0.5);
+  box.matrix.scale(0.2, 0.4, 0.2);
   box.render();
 
   var duration = performance.now() - startTime;
