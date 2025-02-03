@@ -248,6 +248,7 @@ function convertCoordinatesEventToGL(ev) {
   return [x, y];
 }
 
+// draw all the cubes in one place here
 function renderAllShapes() {
   var startTime = performance.now();
 
@@ -255,8 +256,6 @@ function renderAllShapes() {
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
   gl.clear(gl.COLOR_BUFFER_BIT);
-
-  drawTriangle3D([-1.0, 0.0, 0.0, -0.5, -1.0, 0.0, 0.0, 0.0, 0.0]);
 
   var body = new Cube();
   body.color = [1.0, 0.0, 0.0, 1.0];
@@ -270,6 +269,13 @@ function renderAllShapes() {
   leftArm.matrix.rotate(45, 0, 0, 1);
   leftArm.matrix.scale(0.25, 0.7, 0.5);
   leftArm.render();
+
+  var box = new Cube();
+  box.color = [1, 0, 1, 1];
+  box.matrix.translate(0, 0, -0.5, 0);
+  box.matrix.rotate(-30, 1, 0, 0);
+  box.matrix.scale(0.5, 0.5, 0.5);
+  box.render();
 
   var duration = performance.now() - startTime;
   sendTextToHTML(
