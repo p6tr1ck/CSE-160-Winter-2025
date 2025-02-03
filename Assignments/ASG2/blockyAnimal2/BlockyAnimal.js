@@ -281,15 +281,16 @@ function renderAllShapes() {
   body.matrix.scale(0.5, 0.3, 0.5);
   body.render();
 
-  var leftArm = new Cube();
-  leftArm.color = [1, 1, 0, 1];
-  leftArm.matrix.setTranslate(0, -0.5, 0.0);
-  leftArm.matrix.rotate(-5, 1, 0, 0);
-  leftArm.matrix.rotate(-g_yellowAngle, 0, 0, 1);
-  var yellowCoordinatesMat = new Matrix4(leftArm.matrix);
-  leftArm.matrix.scale(0.25, 0.7, 0.5);
-  leftArm.matrix.translate(-0.5, 0, 0);
-  leftArm.render();
+  var yellow = new Cube();
+  yellow.color = [1, 1, 0, 1];
+  yellow.matrix.setTranslate(0, -0.5, 0.0);
+  yellow.matrix.rotate(-5, 1, 0, 0);
+  // leftArm.matrix.rotate(-g_yellowAngle, 0, 0, 1);
+  yellow.matrix.rotate(45 * Math.sin(g_seconds), 0, 0, 1);
+  var yellowCoordinatesMat = new Matrix4(yellow.matrix);
+  yellow.matrix.scale(0.25, 0.7, 0.5);
+  yellow.matrix.translate(-0.5, 0, 0);
+  yellow.render();
 
   var box = new Cube();
   box.color = [1, 0, 1, 1];
@@ -320,7 +321,18 @@ function main() {
   };
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   // gl.clear(gl.COLOR_BUFFER_BIT);
+  requestAnimationFrame(tick);
+  // renderAllShapes();
+}
+
+var g_startTime = performance.now() / 1000.0;
+var g_seconds = performance.now() / 1000.0 - g_startTime;
+
+function tick() {
+  g_seconds = performance.now() / 1000.0 - g_startTime;
+  console.log(g_seconds);
   renderAllShapes();
+  requestAnimationFrame(tick);
 }
 
 function sendTextToHTML(text, htmlID) {
