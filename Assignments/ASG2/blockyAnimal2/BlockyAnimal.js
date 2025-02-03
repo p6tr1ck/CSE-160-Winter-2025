@@ -86,6 +86,7 @@ let g_selectedType = POINT;
 let g_globalAngle = 0;
 let g_yellowAngle = 0;
 let g_magentaAngle = 0;
+let g_yellowAnimation = false;
 let segments = 10;
 
 function drawTop() {
@@ -211,6 +212,13 @@ function addActionsForHtmlUI() {
   //   .addEventListener("mouseup", function () {
   //     segments = this.value;
   //   });
+  document.getElementById("animationYellowOffButton").onclick = function () {
+    g_yellowAnimation = false;
+  };
+  document.getElementById("animationYellowOnButton").onclick = function () {
+    g_yellowAnimation = true;
+  };
+
   document
     .getElementById("magentaSlide")
     .addEventListener("mousemove", function () {
@@ -285,8 +293,15 @@ function renderAllShapes() {
   yellow.color = [1, 1, 0, 1];
   yellow.matrix.setTranslate(0, -0.5, 0.0);
   yellow.matrix.rotate(-5, 1, 0, 0);
+  yellow.matrix.rotate(-g_yellowAngle, 0, 0, 1);
+
+  // if (g_yellowAnimation) {
+  //   yellow.matrix.rotate(45 * Math.sin(g_seconds), 0, 0, 1);
+  // } else {
+  //   yellow.matrix.rotate(g_yellowAngle, 0, 0, 1);
+  // }
+
   // leftArm.matrix.rotate(-g_yellowAngle, 0, 0, 1);
-  yellow.matrix.rotate(45 * Math.sin(g_seconds), 0, 0, 1);
   var yellowCoordinatesMat = new Matrix4(yellow.matrix);
   yellow.matrix.scale(0.25, 0.7, 0.5);
   yellow.matrix.translate(-0.5, 0, 0);
@@ -320,9 +335,8 @@ function main() {
     if (ev.buttons == 1) click(ev);
   };
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  // gl.clear(gl.COLOR_BUFFER_BIT);
+
   requestAnimationFrame(tick);
-  // renderAllShapes();
 }
 
 var g_startTime = performance.now() / 1000.0;
@@ -330,9 +344,15 @@ var g_seconds = performance.now() / 1000.0 - g_startTime;
 
 function tick() {
   g_seconds = performance.now() / 1000.0 - g_startTime;
-  console.log(g_seconds);
+  updateAnimationAngles();
   renderAllShapes();
   requestAnimationFrame(tick);
+}
+
+function updateAnimationAngles() {
+  if (g_yellowAnimation) {
+    g_yellowAngle = 45 * Math.sin(g_seconds);
+  }
 }
 
 function sendTextToHTML(text, htmlID) {
