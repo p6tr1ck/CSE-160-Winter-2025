@@ -1,0 +1,27 @@
+#green {
+  background-color: rgb(0, 255, 0);
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+}
+
+#red {
+  background-color: rgb(255, 0, 0);
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+}
+
+#current {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+}
+
+.color.active {
+  border: 3px solid rgb(51, 153, 255);
+}
+
+.color.inactive {
+  border: none;
+}
