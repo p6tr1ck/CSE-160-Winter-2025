@@ -1,24 +1,35 @@
 var VSHADER_SOURCE = `
+  precision mediump float;
   attribute vec4 a_Position;
+  attribute vec2 a_UV;
+  varying vec2 v_UV;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
+  uniform mat4 u_ViewMatrix;
+  uniform mat4 u_ProjectionMatrix;
   void main() {
-    gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
+    gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
+    v_UV = a_UV;
   }`;
 
 var FSHADER_SOURCE = `
   precision mediump float; 
+  varying vec2 v_UV;
   uniform vec4 u_FragColor;
   void main() {
     gl_FragColor = u_FragColor;
+    gl_FragColor = vec4(v_UV,1.0,1.0);
   }`;
 
 let canvas;
 let gl;
 let a_Position;
+let a_UV;
 let u_FragColor;
 let u_Size;
 let u_ModelMatrix;
+let u_ProjectionMatrix;
+let u_ViewMatrix;
 let u_GlobalRotateMatrix;
 
 function setupWebGL() {
@@ -46,15 +57,21 @@ function connectVariablesToGLSL() {
     return;
   }
 
-  u_FragColor = gl.getUniformLocation(gl.program, "u_FragColor");
-  if (!u_FragColor) {
-    console.log("Failed to get the storage location of u_FragColor");
-    return;
-  }
+  // u_FragColor = gl.getUniformLocation(gl.program, "u_FragColor");
+  // if (!u_FragColor) {
+  //   console.log("Failed to get the storage location of u_FragColor");
+  //   return;
+  // }
 
   u_ModelMatrix = gl.getUniformLocation(gl.program, "u_ModelMatrix");
   if (!u_ModelMatrix) {
     console.log("Failed to get the storage location of u_ModelMatrix");
+    return;
+  }
+
+  a_UV = gl.getAttribLocation(gl.program, "a_UV");
+  if (a_UV < 0) {
+    console.log("Failed to get the storage location of a_UV");
     return;
   }
 
@@ -64,6 +81,12 @@ function connectVariablesToGLSL() {
   );
   if (!u_GlobalRotateMatrix) {
     console.log("Failed to get the storage location of u_GlobalRotateMatrix");
+    return;
+  }
+
+  u_ViewMatrix = gl.getUniformLocation(gl.program, "u_ViewMatrix");
+  if (!u_ViewMatrix) {
+    console.log("Failed to get the storage location of u_ViewMatrix");
     return;
   }
 
@@ -84,9 +107,10 @@ let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 5;
 let g_selectedType = POINT;
 let g_globalAngle = 0;
-let g_yellowAngle = 0;
+let g_jointAngle = 0;
 let g_magentaAngle = 0;
-let g_yellowAnimation = false;
+let g_tail = 0;
+let g_tailAnimation = false;
 let segments = 10;
 
 function drawTop() {
@@ -127,121 +151,24 @@ function draw() {
   drawBottom();
 }
 
-// function removeActiveColors() {
-//   const colors = document.querySelectorAll(".color");
-//   colors.forEach((color) => {
-//     if ("active" === color.classList[1]) {
-//       color.classList.remove("active");
-//       color.classList.add("inactive");
-//     }
-//   });
-// }
-
-// function changeCurrent() {
-//   const currentColor = document.getElementById("current");
-//   currentColor.style.backgroundColor = `rgb(${g_selectedColor[0] * 255}, ${
-//     g_selectedColor[1] * 255
-//   }, ${g_selectedColor[2] * 255})`;
-//   removeActiveColors();
-//   currentColor.classList.remove("inactive");
-//   currentColor.classList.add("active");
-// }
-
 function addActionsForHtmlUI() {
-  // const green = document.getElementById("green");
-  // const red = document.getElementById("red");
-  // const current = document.getElementById("current");
-  // green.onclick = function () {
-  //   g_selectedColor = [0.0, 1.0, 0.0, 1.0];
-  //   removeActiveColors();
-  //   this.classList.remove("inactive");
-  //   this.classList.add("active");
-  // };
-
-  // red.onclick = function () {
-  //   g_selectedColor = [1.0, 0.0, 0.0, 1.0];
-  //   removeActiveColors();
-  //   this.classList.remove("inactive");
-  //   this.classList.add("active");
-  // };
-
-  // current.onclick = function () {
-  //   removeActiveColors();
-  //   this.classList.remove("inactive");
-  //   this.classList.add("active");
-  // };
-
-  // document.getElementById("clearButton").onclick = function () {
-  //   g_shapesList = [];
-  //   renderAllShapes();
-  // };
-
-  // document.getElementById("pointButton").onclick = function () {
-  //   g_selectedType = POINT;
-  // };
-  // document.getElementById("triButton").onclick = function () {
-  //   g_selectedType = TRIANGLE;
-  // };
-  // document.getElementById("circleButton").onclick = function () {
-  //   g_selectedType = CIRCLE;
-  // };
-
-  // document.getElementById("redSlide").addEventListener("mouseup", function () {
-  //   g_selectedColor[0] = this.value / 100;
-  //   changeCurrent();
-  // });
-  // document
-  //   .getElementById("greenSlide")
-  //   .addEventListener("mouseup", function () {
-  //     g_selectedColor[1] = this.value / 100;
-  //     changeCurrent();
-  //   });
-  // document.getElementById("blueSlide").addEventListener("mouseup", function () {
-  //   g_selectedColor[2] = this.value / 100;
-  //   changeCurrent();
-  // });
-  // document.getElementById("image").onclick = function () {
-  //   draw();
-  // };
-
-  // document.getElementById("sizeSlide").addEventListener("mouseup", function () {
-  //   g_selectedSize = this.value;
-  // });
-  // document
-  //   .getElementById("segmentSlide")
-  //   .addEventListener("mouseup", function () {
-  //     segments = this.value;
-  //   });
-  document.getElementById("animationYellowOffButton").onclick = function () {
-    g_yellowAnimation = false;
-  };
-  document.getElementById("animationYellowOnButton").onclick = function () {
-    g_yellowAnimation = true;
-  };
-
-  document
-    .getElementById("magentaSlide")
-    .addEventListener("mousemove", function () {
-      g_magentaAngle = this.value;
-      renderAllShapes();
-    });
-  document
-    .getElementById("yellowSlide")
-    .addEventListener("mousemove", function () {
-      g_yellowAngle = this.value;
-      renderAllShapes();
-    });
-
   document
     .getElementById("angleSlide")
     .addEventListener("mousemove", function () {
       g_globalAngle = this.value;
-      renderAllShapes();
+      renderScene();
     });
 }
+let g_explosion = false;
 
 var g_shapesList = [];
 function click(ev) {
+  if (ev.shiftKey) {
+    g_explosion = !g_explosion;
+    renderScene();
+    return;
+  }
+
   [x, y] = convertCoordinatesEventToGL(ev);
 
   let point;
@@ -258,7 +185,7 @@ function click(ev) {
   point.size = g_selectedSize;
   g_shapesList.push(point);
 
-  renderAllShapes();
+  renderScene();
 }
 
 function convertCoordinatesEventToGL(ev) {
@@ -273,8 +200,14 @@ function convertCoordinatesEventToGL(ev) {
 }
 
 // draw all the cubes in one place here
-function renderAllShapes() {
+function renderScene() {
   var startTime = performance.now();
+
+  var projMat = new Matrix4();
+  gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
+
+  var viewMat = new Matrix4();
+  gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
   var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
@@ -283,41 +216,83 @@ function renderAllShapes() {
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   var body = new Cube();
-  body.color = [1.0, 0.0, 0.0, 1.0];
-  body.matrix.translate(-0.25, -0.75, 0.0);
-  body.matrix.rotate(-5, 1, 0, 0);
-  body.matrix.scale(0.5, 0.3, 0.5);
+  body.color = [0.6, 0.3, 0.0, 1.0];
+  body.matrix.setTranslate(-0.2, -0.4, 0.0);
+  body.matrix.scale(0.6, 0.3, 0.3);
   body.render();
 
-  var yellow = new Cube();
-  yellow.color = [1, 1, 0, 1];
-  yellow.matrix.setTranslate(0, -0.5, 0.0);
-  yellow.matrix.rotate(-5, 1, 0, 0);
-  yellow.matrix.rotate(-g_yellowAngle, 0, 0, 1);
+  var head = new Cube();
+  head.color = [0.6, 0.3, 0.0, 1.0];
+  head.matrix.setTranslate(0.25, -0.2, 0);
+  head.matrix.scale(0.3, 0.3, 0.3);
+  head.render();
 
-  // if (g_yellowAnimation) {
-  //   yellow.matrix.rotate(45 * Math.sin(g_seconds), 0, 0, 1);
-  // } else {
-  //   yellow.matrix.rotate(g_yellowAngle, 0, 0, 1);
-  // }
+  var snout = new Cube();
+  snout.color = [0.4, 0.2, 0.0, 1.0];
+  snout.matrix.setTranslate(0.5, -0.1, 0.08);
+  snout.matrix.scale(0.12, 0.1, 0.12);
+  snout.render();
 
-  // leftArm.matrix.rotate(-g_yellowAngle, 0, 0, 1);
-  var yellowCoordinatesMat = new Matrix4(yellow.matrix);
-  yellow.matrix.scale(0.25, 0.7, 0.5);
-  yellow.matrix.translate(-0.5, 0, 0);
-  yellow.render();
+  var leftEar = new Cube();
+  leftEar.color = [0.5, 0.2, 0.0, 1.0];
+  leftEar.matrix.setTranslate(0.4, 0.1, 0.25);
+  leftEar.matrix.scale(0.08, 0.15, 0.05);
+  leftEar.render();
 
-  var box = new Cube();
-  box.color = [1, 0, 1, 1];
-  box.matrix = yellowCoordinatesMat;
-  box.matrix.translate(0, 0.65, 0);
-  box.matrix.rotate(g_magentaAngle, 0, 0, 1);
-  box.matrix.scale(0.3, 0.3, 0.3);
-  box.matrix.translate(-0.5, 0, -0.001);
-  // box.matrix.translate(-0.1, 0.1, 0.0, 0);
-  // box.matrix.rotate(-30, 1, 0, 0);
-  // box.matrix.scale(0.2, 0.4, 0.2);
-  box.render();
+  var rightEar = new Cube();
+  rightEar.color = [0.5, 0.2, 0.0, 1.0];
+  rightEar.matrix.setTranslate(0.4, 0.1, 0);
+  rightEar.matrix.scale(0.08, 0.15, 0.05);
+  rightEar.render();
+
+  let legPositions = [
+    [-0.2, -0.6, 0.2], // bottom right
+    [0.3, -0.6, 0.2], // top right
+    [-0.2, -0.6, 0], // bottom left
+    [0.3, -0.6, 0], // top left
+  ];
+
+  for (let i = 0; i < 4; i++) {
+    let upperLeg = new Cube();
+    upperLeg.color = [0.5, 0.2, 0.0, 1.0];
+    upperLeg.matrix.setTranslate(
+      legPositions[i][0],
+      legPositions[i][1],
+      legPositions[i][2]
+    );
+    upperLeg.matrix.scale(0.1, 0.2, 0.1);
+    upperLeg.render();
+
+    let lowerLeg = new Cube();
+    lowerLeg.color = [0.5, 0.2, 0.0, 1.0];
+    lowerLeg.matrix.setTranslate(
+      legPositions[i][0],
+      legPositions[i][1] - 0.2,
+      legPositions[i][2]
+    );
+    lowerLeg.matrix.rotate(0, 1, 0, 0);
+    lowerLeg.matrix.scale(0.1, 0.2, 0.1);
+    lowerLeg.render();
+  }
+
+  var tail = new Cube();
+  tail.color = [0.5, 0.2, 0.0, 1.0];
+  tail.matrix.setTranslate(-0.2, -0.1, 0.05);
+  tail.matrix.rotate(15 * Math.sin(g_seconds), 0, 0, 1); // wagging
+  tail.matrix.scale(0.08, 0.3, 0.08);
+  tail.render();
+
+  var leftEye = new Cube();
+  leftEye.color = [0, 0, 0, 1];
+  leftEye.matrix.setTranslate(0.53, 0.02, 0.2);
+  leftEye.matrix.scale(0.03, 0.05, 0.05);
+  leftEye.render();
+
+  var rightEye = new Cube();
+  rightEye.color = [0, 0, 0, 1]; // Black
+  rightEye.matrix.setTranslate(0.53, 0.02, 0.05);
+  rightEye.matrix.scale(0.03, 0.05, 0.05);
+  rightEye.render();
 
   var duration = performance.now() - startTime;
   sendTextToHTML(
@@ -345,13 +320,15 @@ var g_seconds = performance.now() / 1000.0 - g_startTime;
 function tick() {
   g_seconds = performance.now() / 1000.0 - g_startTime;
   updateAnimationAngles();
-  renderAllShapes();
+  renderScene();
   requestAnimationFrame(tick);
 }
 
 function updateAnimationAngles() {
-  if (g_yellowAnimation) {
-    g_yellowAngle = 45 * Math.sin(g_seconds);
+  if (g_tailAnimation) {
+    g_tail = 45 * Math.sin(g_seconds);
+  } else {
+    g_tail = 0;
   }
 }
 
