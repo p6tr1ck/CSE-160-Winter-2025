@@ -400,6 +400,7 @@ function main() {
   // canvas.onmousemove = function (ev) {
   //   if (ev.buttons == 1) click(ev);
   // };
+  document.onkeydown = keydown;
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -414,6 +415,15 @@ function tick() {
   updateAnimationAngles();
   renderScene();
   requestAnimationFrame(tick);
+}
+
+function keydown(ev) {
+  if (ev.keyCode == 39) {
+    g_eye[0] += 0.2;
+  } else if (ev.keyCode == 37) {
+    g_eye[0] -= 0.2;
+  }
+  renderScene();
 }
 
 function updateAnimationAngles() {
