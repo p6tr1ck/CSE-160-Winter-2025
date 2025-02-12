@@ -42,6 +42,7 @@ let u_ViewMatrix;
 let u_GlobalRotateMatrix;
 let u_Sampler0;
 let u_whichTexture;
+let g_camera;
 
 function setupWebGL() {
   canvas = document.getElementById("webgl");
@@ -273,7 +274,6 @@ var g_up = [0, 1, 0];
 // draw all the cubes in one place here
 function renderScene() {
   var startTime = performance.now();
-
   var projMat = new Matrix4();
   projMat.setPerspective(50, canvas.width / canvas.height, 1, 100);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
@@ -290,6 +290,17 @@ function renderScene() {
     g_up[1],
     g_up[2]
   );
+  // viewMat.setLookAt(
+  //   g_camera.eye.x,
+  //   g_camera.eye.y,
+  //   g_camera.eye.z,
+  //   g_camera.at.x,
+  //   g_camera.at.y,
+  //   g_camera.at.z,
+  //   g_camera.up.x,
+  //   g_camera.up.y,
+  //   g_camera.up.z
+  // );
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
   var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
@@ -297,6 +308,15 @@ function renderScene() {
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
+
+  // draw floor
+  var body = new Cube();
+  body.color = [1.0, 0.0, 0.0, 1.0];
+  body.textureNum = 0;
+  body.matrix.translate(0, -0.75, 0.0);
+  body.matrix.scale(10, 0, 10);
+  body.matrix.translate(-0.5, 0 - 0.5);
+  body.render();
 
   var body = new Cube();
   body.color = [0.6, 0.3, 0.0, 1.0];
@@ -400,6 +420,7 @@ function main() {
   // canvas.onmousemove = function (ev) {
   //   if (ev.buttons == 1) click(ev);
   // };
+  g_camera = new Camera();
   document.onkeydown = keydown;
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
