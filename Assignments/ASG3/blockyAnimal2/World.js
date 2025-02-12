@@ -42,7 +42,7 @@ let u_ViewMatrix;
 let u_GlobalRotateMatrix;
 let u_Sampler0;
 let u_whichTexture;
-let g_camera;
+let camera;
 
 function setupWebGL() {
   canvas = document.getElementById("webgl");
@@ -275,7 +275,7 @@ var g_up = [0, 1, 0];
 function renderScene() {
   var startTime = performance.now();
   var projMat = new Matrix4();
-  projMat.setPerspective(50, canvas.width / canvas.height, 1, 100);
+  projMat.setPerspective(camera.fov, canvas.width / canvas.height, 0.1, 1000);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
   var viewMat = new Matrix4();
@@ -291,15 +291,15 @@ function renderScene() {
     g_up[2]
   );
   // viewMat.setLookAt(
-  //   g_camera.eye.x,
-  //   g_camera.eye.y,
-  //   g_camera.eye.z,
-  //   g_camera.at.x,
-  //   g_camera.at.y,
-  //   g_camera.at.z,
-  //   g_camera.up.x,
-  //   g_camera.up.y,
-  //   g_camera.up.z
+  //   camera.eye.x,
+  //   camera.eye.y,
+  //   camera.eye.z,
+  //   camera.at.x,
+  //   camera.at.y,
+  //   camera.at.z,
+  //   camera.up.x,
+  //   camera.up.y,
+  //   camera.up.z
   // );
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
@@ -420,7 +420,7 @@ function main() {
   // canvas.onmousemove = function (ev) {
   //   if (ev.buttons == 1) click(ev);
   // };
-  g_camera = new Camera();
+  camera = new Camera();
   document.onkeydown = keydown;
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
