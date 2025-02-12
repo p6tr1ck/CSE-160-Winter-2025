@@ -436,6 +436,10 @@ function keydown(ev) {
     camera.moveLeft();
   } else if (ev.keyCode == 68) {
     camera.moveRight();
+  } else if (ev.keyCode == 81) {
+    camera.panLeft();
+  } else if (ev.keyCode == 69) {
+    camera.panRight();
   }
   renderScene();
 }
