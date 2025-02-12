@@ -304,7 +304,7 @@ function renderScene() {
   body.textureNum = 0;
   body.matrix.translate(0, -0.75, 0.0);
   body.matrix.scale(10, 0, 10);
-  body.matrix.translate(-0.5, 0 - 0.5);
+  body.matrix.translate(-0.5, 0, -0.5);
   body.render();
 
   var body = new Cube();
