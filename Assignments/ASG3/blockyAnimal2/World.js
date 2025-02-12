@@ -280,27 +280,16 @@ function renderScene() {
 
   var viewMat = new Matrix4();
   viewMat.setLookAt(
-    g_eye[0],
-    g_eye[1],
-    g_eye[2],
-    g_at[0],
-    g_at[1],
-    g_at[2],
-    g_up[0],
-    g_up[1],
-    g_up[2]
+    camera.eye.elements[0],
+    camera.eye.elements[1],
+    camera.eye.elements[2],
+    camera.at.elements[0],
+    camera.at.elements[1],
+    camera.at.elements[2],
+    camera.up.elements[0],
+    camera.up.elements[1],
+    camera.up.elements[2]
   );
-  // viewMat.setLookAt(
-  //   camera.eye.x,
-  //   camera.eye.y,
-  //   camera.eye.z,
-  //   camera.at.x,
-  //   camera.at.y,
-  //   camera.at.z,
-  //   camera.up.x,
-  //   camera.up.y,
-  //   camera.up.z
-  // );
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
   var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
