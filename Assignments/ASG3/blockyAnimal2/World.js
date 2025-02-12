@@ -428,10 +428,10 @@ function tick() {
 }
 
 function keydown(ev) {
-  if (ev.keyCode == 39) {
-    g_eye[0] += 0.2;
-  } else if (ev.keyCode == 37) {
-    g_eye[0] -= 0.2;
+  if (ev.keyCode == 87) {
+    camera.moveForward();
+  } else if (ev.keyCode == 83) {
+    camera.moveBackwards();
   }
   renderScene();
 }
