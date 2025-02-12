@@ -27,4 +27,18 @@ class Camera {
     this.eye.add(f);
     this.at.add(f);
   }
+
+  moveLeft() {
+    let f = new Vector3();
+    f.set(this.at);
+    f.sub(this.eye);
+    f.normalize();
+
+    let s = Vector3.cross(this.up, f);
+    s.normalize();
+    s.mul(0.3);
+
+    this.eye.add(s);
+    this.at.add(s);
+  }
 }

@@ -432,6 +432,8 @@ function keydown(ev) {
     camera.moveForward();
   } else if (ev.keyCode == 83) {
     camera.moveBackwards();
+  } else if (ev.keyCode == 65) {
+    camera.moveLeft();
   }
   renderScene();
 }
