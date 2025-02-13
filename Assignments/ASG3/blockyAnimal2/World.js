@@ -210,7 +210,7 @@ function initTextures() {
   image.onload = function () {
     sendImageToTEXTURE0(image);
   };
-  image.src = "sky.jpg";
+  image.src = "grass.jpg";
   return true;
 }
 
@@ -224,6 +224,7 @@ function sendImageToTEXTURE0(image) {
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
   gl.uniform1i(u_Sampler0, 0);
   console.log("Finished loadTexture");
