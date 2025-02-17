@@ -300,13 +300,13 @@ function renderScene() {
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // draw floor
-  for (let i = -2; i <= 2; i++) {
-    for (let j = -2; j <= 2; j++) {
+  for (let i = 0; i <= 2; i++) {
+    for (let j = 0; j <= 2; j++) {
       var floor = new Cube();
-      floor.color = [1.0, 0.0, 0.0, 1.0]; // Can be changed to different colors
-      floor.textureNum = 0; // Apply texture
-      floor.matrix.translate(i, -0.75, j); // Position the floor tiles
-      floor.matrix.scale(1, 0, 1); // Keep it flat
+      floor.color = [1.0, 0.0, 0.0, 1.0];
+      floor.textureNum = 0;
+      floor.matrix.translate(i, -0.75, j);
+      floor.matrix.scale(1, 0, 1);
       floor.render();
     }
   }
