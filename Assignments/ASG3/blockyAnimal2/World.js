@@ -300,13 +300,24 @@ function renderScene() {
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // draw floor
-  var body = new Cube();
-  body.color = [1.0, 0.0, 0.0, 1.0];
-  body.textureNum = 0;
-  body.matrix.translate(0, -0.75, 0.0);
-  body.matrix.scale(10, 0, 10);
-  body.matrix.translate(-0.5, 0, -0.5);
-  body.render();
+  for (let i = -2; i <= 2; i++) {
+    for (let j = -2; j <= 2; j++) {
+      var floor = new Cube();
+      floor.color = [1.0, 0.0, 0.0, 1.0]; // Can be changed to different colors
+      floor.textureNum = 0; // Apply texture
+      floor.matrix.translate(i, -0.75, j); // Position the floor tiles
+      floor.matrix.scale(1, 0, 1); // Keep it flat
+      floor.render();
+    }
+  }
+
+  // draw sky
+  var sky = new Cube();
+  sky.color = [0.0, 0.0, 1.0, 1.0];
+  // sky.textureNum = 1;
+  sky.matrix.scale(1000, 1000, 1000);
+  sky.matrix.translate(-0.5, -0.5, -0.5);
+  sky.render();
 
   var body = new Cube();
   body.color = [0.6, 0.3, 0.0, 1.0];
