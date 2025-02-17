@@ -5,9 +5,9 @@ class Camera {
     this.at = new Vector3([0, 0, -100]);
     this.up = new Vector3([0, 1, 0]);
     this.speed = 1;
-    this.yaw = 0; // Left/Right rotation
-    this.pitch = 0; // Up/Down rotation
-    this.sensitivity = 0.2; // Mouse sensitivity
+    this.yaw = 0; // left and right rotation
+    this.pitch = 0; // up and down rotation
+    this.sensitivity = 0.2; // mouse sensitivity
   }
 
   moveForward() {

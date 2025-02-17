@@ -388,6 +388,7 @@ function renderScene() {
   gl.clear(gl.COLOR_BUFFER_BIT);
   drawDiamondBlocks();
   drawMap();
+  drawRain();
   // draw floor
   for (let i = -16; i <= 16; i++) {
     for (let j = -16; j <= 16; j++) {
@@ -516,8 +517,8 @@ function main() {
   document.onkeydown = keydown;
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
   requestAnimationFrame(tick);
+  generateRain();
 }
 
 var g_startTime = performance.now() / 1000.0;
@@ -528,6 +529,7 @@ function tick() {
   updateAnimationAngles();
   renderScene();
   requestAnimationFrame(tick);
+  updateRain();
 }
 
 function keydown(ev) {
@@ -622,5 +624,41 @@ function removeBlock() {
   if (maxIndex !== -1) {
     worldBlocks.splice(maxIndex, 1);
     renderScene();
+  }
+}
+
+let rainDrops = [];
+
+function generateRain() {
+  for (let i = 0; i < 30; i++) {
+    rainDrops.push({
+      x: (Math.random() - 0.5) * 20,
+      y: Math.random() * 10 + 5,
+      z: (Math.random() - 0.5) * 20,
+      speed: Math.random() * 0.1 + 0.1,
+    });
+  }
+}
+
+function updateRain() {
+  for (let drop of rainDrops) {
+    drop.y -= drop.speed;
+    if (drop.y < -0.7) {
+      // Reset when hitting the ground
+      drop.y = Math.random() * 10 + 5;
+      drop.x = (Math.random() - 0.5) * 20;
+      drop.z = (Math.random() - 0.5) * 20;
+    }
+  }
+}
+
+function drawRain() {
+  for (let drop of rainDrops) {
+    let rain = new Cube();
+    rain.color = [0.5, 0.5, 1.0, 0.8];
+    rain.textureNum = -2;
+    rain.matrix.translate(drop.x, drop.y, drop.z);
+    rain.matrix.scale(0.05, 0.3, 0.05);
+    rain.render();
   }
 }
