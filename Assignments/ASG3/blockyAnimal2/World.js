@@ -284,6 +284,30 @@ var g_eye = [0, 0, 3];
 var g_at = [0, 0, -100];
 var g_up = [0, 1, 0];
 
+var g_map = [
+  [1, 0, 0, 0, 0, 0, 1, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 0, 1, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0],
+];
+
+function drawMap() {
+  for (x = 0; x < 8; x++) {
+    for (y = 0; y < 8; y++) {
+      if (g_map[x][y] == 1) {
+        var body = new Cube();
+        body.color = [1.0, 1.0, 1.0, 1.0];
+        body.matrix.translate(x - 4, -0.75, y - 4);
+        body.renderFast();
+      }
+    }
+  }
+}
+
 // draw all the cubes in one place here
 function renderScene() {
   var startTime = performance.now();
@@ -310,16 +334,16 @@ function renderScene() {
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
-
+  drawMap();
   // draw floor
-  for (let i = 0; i <= 2; i++) {
-    for (let j = 0; j <= 2; j++) {
+  for (let i = -16; i <= 16; i++) {
+    for (let j = -16; j <= 16; j++) {
       var floor = new Cube();
       floor.color = [1.0, 0.0, 0.0, 1.0];
       floor.textureNum = 0;
       floor.matrix.translate(i, -0.75, j);
       floor.matrix.scale(1, 0, 1);
-      floor.render();
+      floor.renderFast();
     }
   }
 
@@ -327,7 +351,7 @@ function renderScene() {
   var sky = new Cube();
   sky.color = [0.0, 0.0, 1.0, 1.0];
   sky.textureNum = 1;
-  sky.matrix.scale(50, 50, 50);
+  sky.matrix.scale(1000, 1000, 1000);
   sky.matrix.translate(-0.5, -0.5, -0.5);
   sky.render();
 
