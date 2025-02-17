@@ -93,3 +93,28 @@ function drawTriangle3DUV(vertices, uv) {
   gl.enableVertexAttribArray(a_UV);
   gl.drawArrays(gl.TRIANGLES, 0, n);
 }
+
+function drawTriangles3DUV(vertices) {
+  var n = vertices.length / 5; // 3 position coords + 2 UV coords per vertex
+
+  var vertexBuffer = gl.createBuffer();
+  if (!vertexBuffer) {
+    console.error("Failed to create the buffer object");
+    return -1;
+  }
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+  var FSIZE = Float32Array.BYTES_PER_ELEMENT;
+
+  gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 5 * FSIZE, 0);
+  gl.enableVertexAttribArray(a_Position);
+
+  gl.vertexAttribPointer(a_UV, 2, gl.FLOAT, false, 5 * FSIZE, 3 * FSIZE);
+  gl.enableVertexAttribArray(a_UV);
+
+  gl.drawArrays(gl.TRIANGLES, 0, n);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, null); // Unbind to avoid issues
+}
