@@ -106,4 +106,12 @@ class Camera {
     this.at.set(this.eye);
     this.at.add(newDirection);
   }
+
+  panLeft() {
+    this.rotateYaw(5);
+  }
+
+  panRight() {
+    this.rotateYaw(-5);
+  }
 }

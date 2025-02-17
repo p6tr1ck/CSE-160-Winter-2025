@@ -19,6 +19,7 @@ var FSHADER_SOURCE = `
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
   uniform sampler2D u_Sampler2;
+  uniform sampler2D u_Sampler3;
   uniform int u_whichTexture;
   void main() {
     if (u_whichTexture == -2) {
@@ -31,7 +32,9 @@ var FSHADER_SOURCE = `
       gl_FragColor = texture2D(u_Sampler1, v_UV);
     } else if (u_whichTexture == 2) {
       gl_FragColor = texture2D(u_Sampler2, v_UV);
-    } else {
+    } else if (u_whichTexture == 3) {
+      gl_FragColor = texture2D(u_Sampler3, v_UV);
+    }  else {
       gl_FragColor = vec4(1,.2,.2,1);
     }
   }`;
@@ -49,6 +52,7 @@ let u_GlobalRotateMatrix;
 let u_Sampler0;
 let u_Sampler1;
 let u_Sampler2;
+let u_Sampler3;
 let u_whichTexture;
 let camera;
 
@@ -124,7 +128,13 @@ function connectVariablesToGLSL() {
 
   u_Sampler2 = gl.getUniformLocation(gl.program, "u_Sampler2");
   if (!u_Sampler2) {
-    console.log("Failed to get the storage location of u_Sample1");
+    console.log("Failed to get the storage location of u_Sample2");
+    return;
+  }
+
+  u_Sampler3 = gl.getUniformLocation(gl.program, "u_Sampler3");
+  if (!u_Sampler3) {
+    console.log("Failed to get the storage location of u_Sample3");
     return;
   }
 
@@ -245,6 +255,7 @@ function initTextures() {
   loadTexture("grass.jpg", 0);
   loadTexture("sky.png", 1);
   loadTexture("diamond.png", 2);
+  loadTexture("grass_texture.jpg", 3);
 }
 
 // Generic function to load textures
@@ -275,6 +286,8 @@ function sendImageToTexture(image, texUnit) {
     gl.uniform1i(u_Sampler1, 1);
   } else if (texUnit === 2) {
     gl.uniform1i(u_Sampler2, 2);
+  } else if (texUnit === 3) {
+    gl.uniform1i(u_Sampler3, 3);
   }
 }
 
@@ -333,6 +346,9 @@ var g_map = [
   [1, 0, 0, 0, 5, 0, 0, 0],
   [0, 0, 0, 0, 1, 0, 0, 1],
   [1, 0, 0, 0, 0, 0, 2, 0],
+  [1, 0, 0, 0, 0, 0, 1, 0],
+  [1, 0, 0, 0, 0, 0, 1, 0],
+  [2, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 3],
 ];
 
 let worldBlocks = [];
@@ -389,6 +405,8 @@ function renderScene() {
   drawDiamondBlocks();
   drawMap();
   drawRain();
+  drawGrassBiome();
+
   // draw floor
   for (let i = -16; i <= 16; i++) {
     for (let j = -16; j <= 16; j++) {
@@ -519,6 +537,7 @@ function main() {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   requestAnimationFrame(tick);
   generateRain();
+  generateGrassBiome();
 }
 
 var g_startTime = performance.now() / 1000.0;
@@ -660,5 +679,31 @@ function drawRain() {
     rain.matrix.translate(drop.x, drop.y, drop.z);
     rain.matrix.scale(0.05, 0.3, 0.05);
     rain.render();
+  }
+}
+let grassBlocks = []; // Store static grass blocks
+
+function generateGrassBiome() {
+  let biomeSize = 4; // Defines a 4x4 area
+  let startX = -8;
+  let startZ = -8;
+
+  for (let x = startX; x < startX + biomeSize; x++) {
+    for (let z = startZ; z < startZ + biomeSize; z++) {
+      let grassHeight = Math.floor(Math.random() * 3) + 1; // Random height (1-3 blocks)
+
+      for (let h = 0; h < grassHeight; h++) {
+        grassBlocks.push({ x, y: -0.75 + h, z }); // Store in array
+      }
+    }
+  }
+}
+
+function drawGrassBiome() {
+  for (let block of grassBlocks) {
+    let grassBlock = new Cube();
+    grassBlock.textureNum = 3; // Assuming texture 3 is grass
+    grassBlock.matrix.translate(block.x, block.y, block.z);
+    grassBlock.renderFast();
   }
 }
