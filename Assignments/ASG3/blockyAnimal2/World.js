@@ -213,6 +213,31 @@ function addActionsForHtmlUI() {
       g_globalAngle = this.value;
       renderScene();
     });
+  canvas.addEventListener("mouseenter", () => {
+    isMouseInsideCanvas = true;
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    isMouseInsideCanvas = false;
+    prevMouseX = null;
+    prevMouseY = null;
+  });
+  canvas.addEventListener("mousemove", onMouseMove);
+  canvas.addEventListener("mouseenter", () => {
+    isMouseInsideCanvas = true;
+  });
+  canvas.addEventListener("mouseleave", () => {
+    isMouseInsideCanvas = false;
+    prevMouseX = null;
+    prevMouseY = null;
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "c") {
+      addBlock();
+    } else if (event.key === "v") {
+      removeBlock();
+    }
+  });
 }
 let g_explosion = false;
 
@@ -251,8 +276,6 @@ function sendImageToTexture(image, texUnit) {
   } else if (texUnit === 2) {
     gl.uniform1i(u_Sampler2, 2);
   }
-
-  console.log(`Loaded texture ${image.src} as TEXTURE${texUnit}`);
 }
 
 var g_shapesList = [];
@@ -302,13 +325,18 @@ var g_map = [
   [1, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 1, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 1, 0, 1],
+  [0, 0, 3, 0, 0, 1, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0],
   [2, 0, 0, 0, 1, 0, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0],
+  [3, 0, 0, 0, 0, 1, 0, 1],
+  [1, 0, 0, 0, 5, 0, 0, 0],
+  [0, 0, 0, 0, 1, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 2, 0],
 ];
 
-function drawMap() {
+let worldBlocks = [];
+function drawDiamondBlocks() {
   for (x = 0; x < g_map.length; x++) {
     for (y = 0; y < g_map.length; y++) {
       if (g_map[x][y] == 1) {
@@ -319,6 +347,16 @@ function drawMap() {
         body.renderFast();
       }
     }
+  }
+}
+
+function drawMap() {
+  for (let i = 0; i < worldBlocks.length; i++) {
+    let block = worldBlocks[i];
+    var cube = new Cube();
+    cube.textureNum = 2;
+    cube.matrix.translate(block.x, block.y, block.z);
+    cube.renderFast();
   }
 }
 
@@ -348,6 +386,7 @@ function renderScene() {
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
+  drawDiamondBlocks();
   drawMap();
   // draw floor
   for (let i = -16; i <= 16; i++) {
@@ -523,4 +562,65 @@ function sendTextToHTML(text, htmlID) {
     return;
   }
   htmlElm.innerHTML = text;
+}
+
+let prevMouseX = null;
+let prevMouseY = null;
+let mouseSensitivity = 0.2;
+let isMouseInsideCanvas = false;
+
+function onMouseMove(event) {
+  if (!isMouseInsideCanvas) return;
+
+  if (prevMouseX === null || prevMouseY === null) {
+    prevMouseX = event.clientX;
+    prevMouseY = event.clientY;
+    return;
+  }
+
+  let dx = event.clientX - prevMouseX; // left and right movement
+  let dy = event.clientY - prevMouseY; // up and down movement
+
+  prevMouseX = event.clientX;
+  prevMouseY = event.clientY;
+
+  camera.rotateYaw(-dx * mouseSensitivity); // horizontal rotation
+  camera.rotatePitch(-dy * mouseSensitivity); // vertical rotation
+
+  renderScene();
+}
+
+function addBlock() {
+  let pos = camera.getBlockInFront();
+
+  let maxHeight = -0.75;
+  for (let i = 0; i < worldBlocks.length; i++) {
+    if (worldBlocks[i].x === pos.x && worldBlocks[i].z === pos.z) {
+      maxHeight = Math.max(maxHeight, worldBlocks[i].y);
+    }
+  }
+
+  worldBlocks.push({ x: pos.x, y: maxHeight + 1, z: pos.z });
+  renderScene();
+}
+
+function removeBlock() {
+  let pos = camera.getBlockInFront();
+
+  let maxHeight = -0.75; // Default ground height
+  let maxIndex = -1;
+
+  for (let i = 0; i < worldBlocks.length; i++) {
+    if (worldBlocks[i].x === pos.x && worldBlocks[i].z === pos.z) {
+      if (worldBlocks[i].y > maxHeight) {
+        maxHeight = worldBlocks[i].y;
+        maxIndex = i;
+      }
+    }
+  }
+
+  if (maxIndex !== -1) {
+    worldBlocks.splice(maxIndex, 1);
+    renderScene();
+  }
 }

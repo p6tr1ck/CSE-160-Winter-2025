@@ -4,8 +4,10 @@ class Camera {
     this.eye = new Vector3([0, 0, 3]);
     this.at = new Vector3([0, 0, -100]);
     this.up = new Vector3([0, 1, 0]);
-    this.speed = 0.5;
-    this.alpha = 15;
+    this.speed = 1;
+    this.yaw = 0; // Left/Right rotation
+    this.pitch = 0; // Up/Down rotation
+    this.sensitivity = 0.2; // Mouse sensitivity
   }
 
   moveForward() {
@@ -58,43 +60,50 @@ class Camera {
     this.at.add(s);
   }
 
-  panLeft() {
+  getBlockInFront() {
     let f = new Vector3();
     f.set(this.at);
     f.sub(this.eye);
     f.normalize();
 
-    let rotationMatrix = new Matrix4();
-    rotationMatrix.setRotate(
-      this.alpha,
-      this.up.elements[0],
-      this.up.elements[1],
-      this.up.elements[2]
-    );
+    let frontX = Math.round(this.eye.elements[0] + f.elements[0]); // Round to grid
+    let frontZ = Math.round(this.eye.elements[2] + f.elements[2]);
 
-    let f_prime = rotationMatrix.multiplyVector3(f);
-
-    this.at.set(this.eye);
-    this.at.add(f_prime);
+    return { x: frontX, z: frontZ };
   }
 
-  panRight() {
+  rotateYaw(angle) {
+    let rotationMatrix = new Matrix4();
+    rotationMatrix.setRotate(angle, 0, 1, 0);
+
+    let direction = new Vector3();
+    direction.set(this.at);
+    direction.sub(this.eye);
+    direction = rotationMatrix.multiplyVector3(direction);
+
+    this.at.set(this.eye);
+    this.at.add(direction);
+  }
+
+  rotatePitch(angle) {
     let f = new Vector3();
     f.set(this.at);
     f.sub(this.eye);
     f.normalize();
 
+    let right = Vector3.cross(f, this.up);
+    right.normalize();
+
     let rotationMatrix = new Matrix4();
     rotationMatrix.setRotate(
-      -this.alpha,
-      this.up.elements[0],
-      this.up.elements[1],
-      this.up.elements[2]
+      angle,
+      right.elements[0],
+      right.elements[1],
+      right.elements[2]
     );
 
-    let f_prime = rotationMatrix.multiplyVector3(f);
-
+    let newDirection = rotationMatrix.multiplyVector3(f);
     this.at.set(this.eye);
-    this.at.add(f_prime);
+    this.at.add(newDirection);
   }
 }
