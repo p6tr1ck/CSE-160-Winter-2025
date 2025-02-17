@@ -18,6 +18,7 @@ var FSHADER_SOURCE = `
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
+  uniform sampler2D u_Sampler2;
   uniform int u_whichTexture;
   void main() {
     if (u_whichTexture == -2) {
@@ -28,6 +29,8 @@ var FSHADER_SOURCE = `
       gl_FragColor = texture2D(u_Sampler0, v_UV);
     } else if (u_whichTexture == 1) {
       gl_FragColor = texture2D(u_Sampler1, v_UV);
+    } else if (u_whichTexture == 2) {
+      gl_FragColor = texture2D(u_Sampler2, v_UV);
     } else {
       gl_FragColor = vec4(1,.2,.2,1);
     }
@@ -45,6 +48,7 @@ let u_ViewMatrix;
 let u_GlobalRotateMatrix;
 let u_Sampler0;
 let u_Sampler1;
+let u_Sampler2;
 let u_whichTexture;
 let camera;
 
@@ -73,11 +77,11 @@ function connectVariablesToGLSL() {
     return;
   }
 
-  // u_FragColor = gl.getUniformLocation(gl.program, "u_FragColor");
-  // if (!u_FragColor) {
-  //   console.log("Failed to get the storage location of u_FragColor");
-  //   return;
-  // }
+  u_FragColor = gl.getUniformLocation(gl.program, "u_FragColor");
+  if (!u_FragColor) {
+    console.log("Failed to get the storage location of u_FragColor");
+    return;
+  }
 
   u_ModelMatrix = gl.getUniformLocation(gl.program, "u_ModelMatrix");
   if (!u_ModelMatrix) {
@@ -114,6 +118,12 @@ function connectVariablesToGLSL() {
 
   u_Sampler1 = gl.getUniformLocation(gl.program, "u_Sampler1");
   if (!u_Sampler1) {
+    console.log("Failed to get the storage location of u_Sample1");
+    return;
+  }
+
+  u_Sampler2 = gl.getUniformLocation(gl.program, "u_Sampler2");
+  if (!u_Sampler2) {
     console.log("Failed to get the storage location of u_Sample1");
     return;
   }
@@ -207,8 +217,9 @@ function addActionsForHtmlUI() {
 let g_explosion = false;
 
 function initTextures() {
-  loadTexture("grass.jpg", 0); // Load grass texture into TEXTURE0
-  loadTexture("sky.png", 1); // Load sky texture into TEXTURE1
+  loadTexture("grass.jpg", 0);
+  loadTexture("sky.png", 1);
+  loadTexture("diamond.png", 2);
 }
 
 // Generic function to load textures
@@ -237,6 +248,8 @@ function sendImageToTexture(image, texUnit) {
     gl.uniform1i(u_Sampler0, 0);
   } else if (texUnit === 1) {
     gl.uniform1i(u_Sampler1, 1);
+  } else if (texUnit === 2) {
+    gl.uniform1i(u_Sampler2, 2);
   }
 
   console.log(`Loaded texture ${image.src} as TEXTURE${texUnit}`);
@@ -289,17 +302,18 @@ var g_map = [
   [1, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 1, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0],
-  [1, 0, 0, 0, 0, 1, 0, 1],
+  [0, 0, 0, 0, 0, 1, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0],
-  [1, 0, 0, 0, 1, 0, 0, 1],
+  [2, 0, 0, 0, 1, 0, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0],
 ];
 
 function drawMap() {
-  for (x = 0; x < 8; x++) {
-    for (y = 0; y < 8; y++) {
+  for (x = 0; x < g_map.length; x++) {
+    for (y = 0; y < g_map.length; y++) {
       if (g_map[x][y] == 1) {
         var body = new Cube();
+        body.textureNum = 2;
         body.color = [1.0, 1.0, 1.0, 1.0];
         body.matrix.translate(x - 4, -0.75, y - 4);
         body.renderFast();
@@ -357,38 +371,35 @@ function renderScene() {
 
   var body = new Cube();
   body.color = [0.6, 0.3, 0.0, 1.0];
+  body.textureNum = -2;
   body.matrix.setTranslate(-0.2, -0.4, 0.0);
   body.matrix.scale(0.6, 0.3, 0.3);
   body.render();
 
-  // var body = new Cube();
-  // body.color = [1.0, 0.0, 0.0, 1.0];
-  // body.textureNum = 0;
-  // body.matrix.setTranslate(-0.25, -0.75, 0.0);
-  // body.matrix.rotate(-5, 1, 0, 0);
-  // body.matrix.scale(0.5, 0.3, 0.5);
-  // body.render();
-
   var head = new Cube();
   head.color = [0.6, 0.3, 0.0, 1.0];
+  head.textureNum = -2;
   head.matrix.setTranslate(0.25, -0.2, 0);
   head.matrix.scale(0.3, 0.3, 0.3);
   head.render();
 
   var snout = new Cube();
   snout.color = [0.4, 0.2, 0.0, 1.0];
+  snout.textureNum = -2;
   snout.matrix.setTranslate(0.5, -0.1, 0.08);
   snout.matrix.scale(0.12, 0.1, 0.12);
   snout.render();
 
   var leftEar = new Cube();
   leftEar.color = [0.5, 0.2, 0.0, 1.0];
+  leftEar.textureNum = -2;
   leftEar.matrix.setTranslate(0.4, 0.1, 0.25);
   leftEar.matrix.scale(0.08, 0.15, 0.05);
   leftEar.render();
 
   var rightEar = new Cube();
   rightEar.color = [0.5, 0.2, 0.0, 1.0];
+  rightEar.textureNum = -2;
   rightEar.matrix.setTranslate(0.4, 0.1, 0);
   rightEar.matrix.scale(0.08, 0.15, 0.05);
   rightEar.render();
@@ -402,6 +413,7 @@ function renderScene() {
 
   for (let i = 0; i < 4; i++) {
     let upperLeg = new Cube();
+    upperLeg.textureNum = -2;
     upperLeg.color = [0.5, 0.2, 0.0, 1.0];
     upperLeg.matrix.setTranslate(
       legPositions[i][0],
@@ -412,6 +424,7 @@ function renderScene() {
     upperLeg.render();
 
     let lowerLeg = new Cube();
+    lowerLeg.textureNum = -2;
     lowerLeg.color = [0.5, 0.2, 0.0, 1.0];
     lowerLeg.matrix.setTranslate(
       legPositions[i][0],
@@ -424,6 +437,7 @@ function renderScene() {
   }
 
   var tail = new Cube();
+  tail.textureNum = -2;
   tail.color = [0.5, 0.2, 0.0, 1.0];
   tail.matrix.setTranslate(-0.2, -0.1, 0.05);
   tail.matrix.rotate(15 * Math.sin(g_seconds), 0, 0, 1); // wagging
@@ -431,13 +445,15 @@ function renderScene() {
   tail.render();
 
   var leftEye = new Cube();
+  leftEye.textureNum = -2;
   leftEye.color = [0, 0, 0, 1];
   leftEye.matrix.setTranslate(0.53, 0.02, 0.2);
   leftEye.matrix.scale(0.03, 0.05, 0.05);
   leftEye.render();
 
   var rightEye = new Cube();
-  rightEye.color = [0, 0, 0, 1]; // Black
+  rightEye.textureNum = -2;
+  rightEye.color = [0, 0, 0, 1];
   rightEye.matrix.setTranslate(0.53, 0.02, 0.05);
   rightEye.matrix.scale(0.03, 0.05, 0.05);
   rightEye.render();
