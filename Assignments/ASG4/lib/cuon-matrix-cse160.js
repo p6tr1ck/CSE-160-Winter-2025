@@ -128,7 +128,6 @@ class Vector3 {
     if (j <= 0) {
       j = Math.abs(j);
     }
-    console.log(i, j, k);
     let v3 = new Vector3([i, j, k]); // Modify this line to calculate cross product between other1 and other2.
 
     // Don't delete the return statement.
