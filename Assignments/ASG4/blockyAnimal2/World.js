@@ -519,8 +519,8 @@ function main() {
   document.onkeydown = keydown;
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  renderScene();
-  // requestAnimationFrame(tick);
+  // renderScene();
+  requestAnimationFrame(tick);
   // generateRain();
   // generateGrassBiome();
 }
@@ -528,11 +528,12 @@ function main() {
 var g_startTime = performance.now() / 1000.0;
 var g_seconds = performance.now() / 1000.0 - g_startTime;
 
-// function tick() {
-//   g_seconds = performance.now() / 1000.0 - g_startTime;
-//   renderScene();
-//   requestAnimationFrame(tick);
-// }
+function tick() {
+  g_seconds = performance.now() / 1000.0 - g_startTime;
+  updateAnimationAngles();
+  renderScene();
+  requestAnimationFrame(tick);
+}
 
 function keydown(ev) {
   if (ev.keyCode == 87) {
@@ -552,11 +553,12 @@ function keydown(ev) {
 }
 
 function updateAnimationAngles() {
-  if (g_tailAnimation) {
-    g_tail = 45 * Math.sin(g_seconds);
-  } else {
-    g_tail = 0;
-  }
+  // if (g_tailAnimation) {
+  //   g_tail = 45 * Math.sin(g_seconds);
+  // } else {
+  //   g_tail = 0;
+  // }
+  g_lightPos[0] = Math.cos(g_seconds);
 }
 
 function sendTextToHTML(text, htmlID) {
