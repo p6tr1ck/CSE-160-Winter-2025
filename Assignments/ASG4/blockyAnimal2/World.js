@@ -48,15 +48,21 @@ var FSHADER_SOURCE = `
       gl_FragColor = vec4(1,.2,.2,1);
     }
 
-    vec3 lightVector = vec3(v_VertPos)-u_lightPos;
+    vec3 lightVector = u_lightPos-vec3(v_VertPos);
     float r = length(lightVector);
-    if (r < 1.0) {
-      gl_FragColor = vec4(1, 0, 0, 1);
-    }
-    else if (r < 2.0) {
-      gl_FragColor = vec4(0, 1, 0, 1);
-    }
-
+    // gl_FragColor = vec4(vec3(gl_FragColor)/(r*r),1);
+    // if (r < 1.0) {
+    //   gl_FragColor = vec4(1, 0, 0, 1);
+    // }
+    // else if (r < 2.0) {
+    //   gl_FragColor = vec4(0, 1, 0, 1);
+    // }
+    
+    vec3 L = normalize(lightVector);
+    vec3 N = normalize(v_Normal);
+    float nDotL = max(dot(N,L), 0.0);
+    gl_FragColor = gl_FragColor * nDotL;
+    gl_FragColor.a = 1.0;
   }`;
 
 let canvas;
@@ -392,7 +398,7 @@ function renderScene() {
   sky.color = [0.8, 0.8, 0.8, 1];
   sky.textureNum = -2;
   if (g_normalOn) sky.textureNum = -3;
-  sky.matrix.scale(-15, -15, -15);
+  sky.matrix.scale(-8, -8, -8);
   sky.matrix.translate(-0.5, -0.5, -0.5);
   sky.render();
 
