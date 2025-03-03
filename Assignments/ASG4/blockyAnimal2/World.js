@@ -13,8 +13,8 @@ var VSHADER_SOURCE = `
   void main() {
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
-    v_Normal = normalize(mat3(u_ModelMatrix) * a_Normal);
-    v_VertPos = u_ModelMatrix * a_Position;
+    v_Normal = normalize(vec3(u_NormalMatrix * vec4(a_Normal, 1)));
+    v_VertPos = u_ModelMatrix * a_Position; 
   }`;
 
 var FSHADER_SOURCE = `
