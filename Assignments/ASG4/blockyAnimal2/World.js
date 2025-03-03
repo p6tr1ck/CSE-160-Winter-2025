@@ -469,7 +469,7 @@ function renderScene() {
   body.textureNum = -2;
   body.matrix.setTranslate(-0.2, -0.4, 0.0);
   body.matrix.scale(0.6, 0.3, 0.3);
-  body.normalMatrix.setInverseOf(body.matrix).transpose();
+  // body.normalMatrix.setInverseOf(body.matrix).transpose();
   body.render();
 
   var head = new Cube();
