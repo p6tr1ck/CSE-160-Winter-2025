@@ -3,6 +3,8 @@ var VSHADER_SOURCE = `
   attribute vec4 a_Position;
   attribute vec2 a_UV;
   varying vec2 v_UV;
+  attribute vec3 a_Normal;
+  varying vec3 v_Normal;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
@@ -10,11 +12,13 @@ var VSHADER_SOURCE = `
   void main() {
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
+    v_Normal = a_Normal;
   }`;
 
 var FSHADER_SOURCE = `
   precision mediump float; 
   varying vec2 v_UV;
+  varying vec3 v_Normal;
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
@@ -22,7 +26,9 @@ var FSHADER_SOURCE = `
   uniform sampler2D u_Sampler3;
   uniform int u_whichTexture;
   void main() {
-    if (u_whichTexture == -2) {
+    if (u_whichTexture == -3) {
+      gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
+    } else if (u_whichTexture == -2) {
       gl_FragColor = u_FragColor;
     } else if (u_whichTexture == -1) {
       gl_FragColor = vec4(v_UV,1.0,1.0);
@@ -43,6 +49,7 @@ let canvas;
 let gl;
 let a_Position;
 let a_UV;
+let a_Normal;
 let u_FragColor;
 let u_Size;
 let u_ModelMatrix;
@@ -96,6 +103,12 @@ function connectVariablesToGLSL() {
   a_UV = gl.getAttribLocation(gl.program, "a_UV");
   if (a_UV < 0) {
     console.log("Failed to get the storage location of a_UV");
+    return;
+  }
+
+  a_Normal = gl.getAttribLocation(gl.program, "a_Normal");
+  if (a_Normal < 0) {
+    console.log("Failed to get the storgae location fo a_Normal");
     return;
   }
 
@@ -177,6 +190,7 @@ let g_magentaAngle = 0;
 let g_tail = 0;
 let g_tailAnimation = false;
 let segments = 10;
+let g_normalOn = false;
 
 function drawTop() {
   const blue = [0.0, 0.0, 1.0, 1.0];
@@ -226,6 +240,14 @@ function addActionsForHtmlUI() {
   canvas.addEventListener("mouseenter", () => {
     isMouseInsideCanvas = true;
   });
+
+  document.getElementById("normalOn").onclick = function () {
+    g_normalOn = true;
+  };
+
+  document.getElementById("normalOff").onclick = function () {
+    g_normalOn = false;
+  };
 
   canvas.addEventListener("mouseleave", () => {
     isMouseInsideCanvas = false;
@@ -421,9 +443,10 @@ function renderScene() {
 
   // draw sky
   var sky = new Cube();
-  sky.color = [0.0, 0.0, 1.0, 1.0];
-  sky.textureNum = -1;
-  sky.matrix.scale(50, 50, 50);
+  sky.color = [0.8, 0.8, 0.8, 1];
+  sky.textureNum = -2;
+  if (g_normalOn) sky.textureNum = -3;
+  sky.matrix.scale(-10, -10, -10);
   sky.matrix.translate(-0.5, -0.5, -0.5);
   sky.render();
 
@@ -536,8 +559,8 @@ function main() {
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   requestAnimationFrame(tick);
-  generateRain();
-  generateGrassBiome();
+  // generateRain();
+  // generateGrassBiome();
 }
 
 var g_startTime = performance.now() / 1000.0;
@@ -548,7 +571,6 @@ function tick() {
   updateAnimationAngles();
   renderScene();
   requestAnimationFrame(tick);
-  updateRain();
 }
 
 function keydown(ev) {
@@ -609,101 +631,4 @@ function onMouseMove(event) {
   camera.rotatePitch(-dy * mouseSensitivity); // vertical rotation
 
   renderScene();
-}
-
-function addBlock() {
-  let pos = camera.getBlockInFront();
-
-  let maxHeight = -0.75;
-  for (let i = 0; i < worldBlocks.length; i++) {
-    if (worldBlocks[i].x === pos.x && worldBlocks[i].z === pos.z) {
-      maxHeight = Math.max(maxHeight, worldBlocks[i].y);
-    }
-  }
-
-  worldBlocks.push({ x: pos.x, y: maxHeight + 1, z: pos.z });
-  renderScene();
-}
-
-function removeBlock() {
-  let pos = camera.getBlockInFront();
-
-  let maxHeight = -0.75; // Default ground height
-  let maxIndex = -1;
-
-  for (let i = 0; i < worldBlocks.length; i++) {
-    if (worldBlocks[i].x === pos.x && worldBlocks[i].z === pos.z) {
-      if (worldBlocks[i].y > maxHeight) {
-        maxHeight = worldBlocks[i].y;
-        maxIndex = i;
-      }
-    }
-  }
-
-  if (maxIndex !== -1) {
-    worldBlocks.splice(maxIndex, 1);
-    renderScene();
-  }
-}
-
-let rainDrops = [];
-
-function generateRain() {
-  for (let i = 0; i < 30; i++) {
-    rainDrops.push({
-      x: (Math.random() - 0.5) * 20,
-      y: Math.random() * 10 + 5,
-      z: (Math.random() - 0.5) * 20,
-      speed: Math.random() * 0.1 + 0.1,
-    });
-  }
-}
-
-function updateRain() {
-  for (let drop of rainDrops) {
-    drop.y -= drop.speed;
-    if (drop.y < -0.7) {
-      // Reset when hitting the ground
-      drop.y = Math.random() * 10 + 5;
-      drop.x = (Math.random() - 0.5) * 20;
-      drop.z = (Math.random() - 0.5) * 20;
-    }
-  }
-}
-
-function drawRain() {
-  for (let drop of rainDrops) {
-    let rain = new Cube();
-    rain.color = [0.5, 0.5, 1.0, 0.8];
-    rain.textureNum = -2;
-    rain.matrix.translate(drop.x, drop.y, drop.z);
-    rain.matrix.scale(0.05, 0.3, 0.05);
-    rain.render();
-  }
-}
-let grassBlocks = []; // Store static grass blocks
-
-function generateGrassBiome() {
-  let biomeSize = 4; // Defines a 4x4 area
-  let startX = -8;
-  let startZ = -8;
-
-  for (let x = startX; x < startX + biomeSize; x++) {
-    for (let z = startZ; z < startZ + biomeSize; z++) {
-      let grassHeight = Math.floor(Math.random() * 3) + 1; // Random height (1-3 blocks)
-
-      for (let h = 0; h < grassHeight; h++) {
-        grassBlocks.push({ x, y: -0.75 + h, z }); // Store in array
-      }
-    }
-  }
-}
-
-function drawGrassBiome() {
-  for (let block of grassBlocks) {
-    let grassBlock = new Cube();
-    grassBlock.textureNum = 3; // Assuming texture 3 is grass
-    grassBlock.matrix.translate(block.x, block.y, block.z);
-    grassBlock.renderFast();
-  }
 }
