@@ -65,7 +65,6 @@ let camera;
 
 function setupWebGL() {
   canvas = document.getElementById("webgl");
-  // gl = getWebGLContext(canvas);
   gl = canvas.getContext("webgl", { preserveDrawingBuffer: true });
 
   if (!gl) {
@@ -192,44 +191,6 @@ let g_tailAnimation = false;
 let segments = 10;
 let g_normalOn = false;
 
-function drawTop() {
-  const blue = [0.0, 0.0, 1.0, 1.0];
-  drawTriangleColor([0.0, 0.6, 0.0, 0.4, 0.1, 0.4], blue);
-  drawTriangleColor([0.2, 0.6, 0.1, 0.4, 0.0, 0.6], blue);
-  drawTriangleColor([0.2, 0.6, 0.1, 0.4, 0.2, 0.4], blue);
-
-  drawTriangleColor([0.0, 0.6, 0.0, 0.4, -0.1, 0.4], blue);
-  drawTriangleColor([0.0, 0.6, -0.2, 0.6, -0.1, 0.4], blue);
-  drawTriangleColor([-0.2, 0.4, -0.2, 0.6, -0.1, 0.4], blue);
-
-  drawTriangleColor([0.2, 0.6, 0.2, 0.4, 0.3, 0.4], blue);
-  drawTriangleColor([0.4, 0.6, 0.3, 0.4, 0.2, 0.6], blue);
-  drawTriangleColor([0.4, 0.6, 0.3, 0.4, 0.4, 0.4], blue);
-
-  drawTriangleColor([-0.2, 0.6, -0.2, 0.4, -0.3, 0.4], blue);
-  drawTriangleColor([-0.2, 0.6, -0.4, 0.6, -0.3, 0.4], blue);
-  drawTriangleColor([-0.4, 0.4, -0.4, 0.6, -0.3, 0.4], blue);
-
-  drawTriangleColor([-0.6, 0.4, -0.4, 0.4, -0.4, 0.6], blue);
-  drawTriangleColor([0.6, 0.4, 0.4, 0.4, 0.4, 0.6], blue);
-}
-
-function drawBottom() {
-  const blue = [0.0, 0.0, 1.0, 1.0];
-  drawTriangleColor([0, 0.4, 0, -0.5, 0.2, 0.4], blue);
-  drawTriangleColor([0.4, 0.6, 0, -0.5, 0.2, 0.4], blue);
-  drawTriangleColor([0.4, 0.6, 0, -0.5, 0.6, 0.4], blue);
-
-  drawTriangleColor([0, 0.4, 0, -0.5, -0.2, 0.4], blue);
-  drawTriangleColor([-0.4, 0.6, 0, -0.5, -0.2, 0.4], blue);
-  drawTriangleColor([-0.4, 0.6, 0, -0.5, -0.6, 0.4], blue);
-}
-
-function draw() {
-  drawTop();
-  drawBottom();
-}
-
 function addActionsForHtmlUI() {
   document
     .getElementById("angleSlide")
@@ -262,13 +223,6 @@ function addActionsForHtmlUI() {
     isMouseInsideCanvas = false;
     prevMouseX = null;
     prevMouseY = null;
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "c") {
-      addBlock();
-    } else if (event.key === "v") {
-      removeBlock();
-    }
   });
 }
 let g_explosion = false;
@@ -355,49 +309,6 @@ var g_eye = [0, 0, 3];
 var g_at = [0, 0, -100];
 var g_up = [0, 1, 0];
 
-var g_map = [
-  [1, 0, 0, 0, 0, 0, 1, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 1, 0, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 3, 0, 0, 1, 0, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0],
-  [2, 0, 0, 0, 1, 0, 0, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0],
-  [3, 0, 0, 0, 0, 1, 0, 1],
-  [1, 0, 0, 0, 5, 0, 0, 0],
-  [0, 0, 0, 0, 1, 0, 0, 1],
-  [1, 0, 0, 0, 0, 0, 2, 0],
-  [1, 0, 0, 0, 0, 0, 1, 0],
-  [1, 0, 0, 0, 0, 0, 1, 0],
-  [2, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 3],
-];
-
-let worldBlocks = [];
-function drawDiamondBlocks() {
-  for (x = 0; x < g_map.length; x++) {
-    for (y = 0; y < g_map.length; y++) {
-      if (g_map[x][y] == 1) {
-        var body = new Cube();
-        body.textureNum = 2;
-        body.color = [1.0, 1.0, 1.0, 1.0];
-        body.matrix.translate(x - 4, -0.75, y - 4);
-        body.renderFast();
-      }
-    }
-  }
-}
-
-function drawMap() {
-  for (let i = 0; i < worldBlocks.length; i++) {
-    let block = worldBlocks[i];
-    var cube = new Cube();
-    cube.textureNum = 2;
-    cube.matrix.translate(block.x, block.y, block.z);
-    cube.renderFast();
-  }
-}
-
 // draw all the cubes in one place here
 function renderScene() {
   var startTime = performance.now();
@@ -424,22 +335,6 @@ function renderScene() {
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
-  // drawDiamondBlocks();
-  // drawMap();
-  // drawRain();
-  // drawGrassBiome();
-
-  // draw floor
-  // for (let i = -16; i <= 16; i++) {
-  //   for (let j = -16; j <= 16; j++) {
-  //     var floor = new Cube();
-  //     floor.color = [1.0, 0.0, 0.0, 1.0];
-  //     floor.textureNum = 0;
-  //     floor.matrix.translate(i, -0.75, j);
-  //     floor.matrix.scale(1, 0, 1);
-  //     floor.renderFast();
-  //   }
-  // }
 
   // draw sky
   var sky = new Cube();
@@ -566,12 +461,12 @@ function main() {
 var g_startTime = performance.now() / 1000.0;
 var g_seconds = performance.now() / 1000.0 - g_startTime;
 
-function tick() {
-  g_seconds = performance.now() / 1000.0 - g_startTime;
-  updateAnimationAngles();
-  renderScene();
-  requestAnimationFrame(tick);
-}
+// function tick() {
+//   g_seconds = performance.now() / 1000.0 - g_startTime;
+//   updateAnimationAngles();
+//   renderScene();
+//   // requestAnimationFrame(tick);
+// }
 
 function keydown(ev) {
   if (ev.keyCode == 87) {
