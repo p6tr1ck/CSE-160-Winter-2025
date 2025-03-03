@@ -14,7 +14,7 @@ class Sphere {
     gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
 
     var d = Math.PI / 10;
-    var dd = Math.PI / 20;
+    var dd = Math.PI / 10;
 
     for (var t = 0; t <= Math.PI; t += d) {
       for (var r = 0; r < 2 * Math.PI; r += d) {

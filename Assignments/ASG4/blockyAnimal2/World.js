@@ -5,6 +5,7 @@ var VSHADER_SOURCE = `
   varying vec2 v_UV;
   attribute vec3 a_Normal;
   varying vec3 v_Normal;
+  varying vec4 v_VertPos;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
@@ -13,6 +14,7 @@ var VSHADER_SOURCE = `
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
     v_Normal = a_Normal;
+    v_VertPos = u_ModelMatrix * a_Position;
   }`;
 
 var FSHADER_SOURCE = `
@@ -25,6 +27,8 @@ var FSHADER_SOURCE = `
   uniform sampler2D u_Sampler2;
   uniform sampler2D u_Sampler3;
   uniform int u_whichTexture;
+  uniform vec3 u_lightPos;
+  varying vec4 v_VertPos;
   void main() {
     if (u_whichTexture == -3) {
       gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
@@ -43,6 +47,16 @@ var FSHADER_SOURCE = `
     }  else {
       gl_FragColor = vec4(1,.2,.2,1);
     }
+
+    vec3 lightVector = vec3(v_VertPos)-u_lightPos;
+    float r = length(lightVector);
+    if (r < 1.0) {
+      gl_FragColor = vec4(1, 0, 0, 1);
+    }
+    else if (r < 2.0) {
+      gl_FragColor = vec4(0, 1, 0, 1);
+    }
+
   }`;
 
 let canvas;
@@ -62,6 +76,7 @@ let u_Sampler2;
 let u_Sampler3;
 let u_whichTexture;
 let camera;
+let u_lightPos;
 
 function setupWebGL() {
   canvas = document.getElementById("webgl");
@@ -123,6 +138,12 @@ function connectVariablesToGLSL() {
   u_ViewMatrix = gl.getUniformLocation(gl.program, "u_ViewMatrix");
   if (!u_ViewMatrix) {
     console.log("Failed to get the storage location of u_ViewMatrix");
+    return;
+  }
+
+  u_lightPos = gl.getUniformLocation(gl.program, "u_lightPos");
+  if (!u_lightPos) {
+    console.log("Failed to get the storage location of u_lightPos");
     return;
   }
 
@@ -238,20 +259,20 @@ function addActionsForHtmlUI() {
       }
     });
 
-  canvas.addEventListener("mouseleave", () => {
-    isMouseInsideCanvas = false;
-    prevMouseX = null;
-    prevMouseY = null;
-  });
-  canvas.addEventListener("mousemove", onMouseMove);
-  canvas.addEventListener("mouseenter", () => {
-    isMouseInsideCanvas = true;
-  });
-  canvas.addEventListener("mouseleave", () => {
-    isMouseInsideCanvas = false;
-    prevMouseX = null;
-    prevMouseY = null;
-  });
+  // canvas.addEventListener("mouseleave", () => {
+  //   isMouseInsideCanvas = false;
+  //   prevMouseX = null;
+  //   prevMouseY = null;
+  // });
+  // canvas.addEventListener("mousemove", onMouseMove);
+  // canvas.addEventListener("mouseenter", () => {
+  //   isMouseInsideCanvas = true;
+  // });
+  // canvas.addEventListener("mouseleave", () => {
+  //   isMouseInsideCanvas = false;
+  //   prevMouseX = null;
+  //   prevMouseY = null;
+  // });
 }
 let g_explosion = false;
 
@@ -364,6 +385,8 @@ function renderScene() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
+  gl.uniform3f(u_lightPos, g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+
   // draw sky
   var sky = new Cube();
   sky.color = [0.8, 0.8, 0.8, 1];
@@ -378,12 +401,11 @@ function renderScene() {
   light.color = [2, 2, 0, 1];
   light.matrix.translate(g_lightPos[0], g_lightPos[1], g_lightPos[2]);
   light.matrix.scale(0.1, 0.1, 0.1);
-  light.matrix.translate(-0.5, -0.5, -0.5);
   light.render();
 
   var sphere = new Sphere();
   sphere.color = [1.0, 0.0, 0.0, 1.0];
-  sphere.matrix.translate(0, -0.75, 0.0);
+  sphere.matrix.translate(-1, -1.5, -1.5);
   sphere.matrix.scale(0.5, 0.5, 0.5);
   sphere.matrix.translate(2, 0, 2);
   if (g_normalOn) sphere.textureNum = -3;
@@ -551,23 +573,23 @@ let prevMouseY = null;
 let mouseSensitivity = 0.2;
 let isMouseInsideCanvas = false;
 
-function onMouseMove(event) {
-  if (!isMouseInsideCanvas) return;
+// function onMouseMove(event) {
+//   if (!isMouseInsideCanvas) return;
 
-  if (prevMouseX === null || prevMouseY === null) {
-    prevMouseX = event.clientX;
-    prevMouseY = event.clientY;
-    return;
-  }
+//   if (prevMouseX === null || prevMouseY === null) {
+//     prevMouseX = event.clientX;
+//     prevMouseY = event.clientY;
+//     return;
+//   }
 
-  let dx = event.clientX - prevMouseX; // left and right movement
-  let dy = event.clientY - prevMouseY; // up and down movement
+//   let dx = event.clientX - prevMouseX; // left and right movement
+//   let dy = event.clientY - prevMouseY; // up and down movement
 
-  prevMouseX = event.clientX;
-  prevMouseY = event.clientY;
+//   prevMouseX = event.clientX;
+//   prevMouseY = event.clientY;
 
-  camera.rotateYaw(-dx * mouseSensitivity); // horizontal rotation
-  camera.rotatePitch(-dy * mouseSensitivity); // vertical rotation
+//   camera.rotateYaw(-dx * mouseSensitivity); // horizontal rotation
+//   camera.rotatePitch(-dy * mouseSensitivity); // vertical rotation
 
-  renderScene();
-}
+//   renderScene();
+// }
