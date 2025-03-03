@@ -190,6 +190,7 @@ let g_tail = 0;
 let g_tailAnimation = false;
 let segments = 10;
 let g_normalOn = false;
+let g_lightPos = [0, 1, -2];
 
 function addActionsForHtmlUI() {
   document
@@ -204,11 +205,38 @@ function addActionsForHtmlUI() {
 
   document.getElementById("normalOn").onclick = function () {
     g_normalOn = true;
+    renderScene();
   };
 
   document.getElementById("normalOff").onclick = function () {
     g_normalOn = false;
+    renderScene();
   };
+
+  document
+    .getElementById("lightSlideX")
+    .addEventListener("mousemove", function (ev) {
+      if (ev.buttons == 1) {
+        g_lightPos[0] = this.value / 100;
+        renderScene();
+      }
+    });
+  document
+    .getElementById("lightSlideY")
+    .addEventListener("mousemove", function (ev) {
+      if (ev.buttons == 1) {
+        g_lightPos[1] = this.value / 100;
+        renderScene();
+      }
+    });
+  document
+    .getElementById("lightSlideZ")
+    .addEventListener("mousemove", function (ev) {
+      if (ev.buttons == 1) {
+        g_lightPos[2] = this.value / 100;
+        renderScene();
+      }
+    });
 
   canvas.addEventListener("mouseleave", () => {
     isMouseInsideCanvas = false;
@@ -345,11 +373,20 @@ function renderScene() {
   sky.matrix.translate(-0.5, -0.5, -0.5);
   sky.render();
 
+  var light = new Cube();
+  light.textureNum = -2;
+  light.color = [2, 2, 0, 1];
+  light.matrix.translate(g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+  light.matrix.scale(0.1, 0.1, 0.1);
+  light.matrix.translate(-0.5, -0.5, -0.5);
+  light.render();
+
   var sphere = new Sphere();
   sphere.color = [1.0, 0.0, 0.0, 1.0];
   sphere.matrix.translate(0, -0.75, 0.0);
   sphere.matrix.scale(0.5, 0.5, 0.5);
   sphere.matrix.translate(2, 0, 2);
+  if (g_normalOn) sphere.textureNum = -3;
   sphere.render();
 
   var body = new Cube();
@@ -471,9 +508,8 @@ var g_seconds = performance.now() / 1000.0 - g_startTime;
 
 // function tick() {
 //   g_seconds = performance.now() / 1000.0 - g_startTime;
-//   updateAnimationAngles();
 //   renderScene();
-//   // requestAnimationFrame(tick);
+//   requestAnimationFrame(tick);
 // }
 
 function keydown(ev) {
