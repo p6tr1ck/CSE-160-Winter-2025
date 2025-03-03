@@ -341,9 +341,16 @@ function renderScene() {
   sky.color = [0.8, 0.8, 0.8, 1];
   sky.textureNum = -2;
   if (g_normalOn) sky.textureNum = -3;
-  sky.matrix.scale(-10, -10, -10);
+  sky.matrix.scale(-15, -15, -15);
   sky.matrix.translate(-0.5, -0.5, -0.5);
   sky.render();
+
+  var sphere = new Sphere();
+  sphere.color = [1.0, 0.0, 0.0, 1.0];
+  sphere.matrix.translate(0, -0.75, 0.0);
+  sphere.matrix.scale(0.5, 0.5, 0.5);
+  sphere.matrix.translate(2, 0, 2);
+  sphere.render();
 
   var body = new Cube();
   body.color = [0.6, 0.3, 0.0, 1.0];
@@ -453,7 +460,8 @@ function main() {
   document.onkeydown = keydown;
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  requestAnimationFrame(tick);
+  renderScene();
+  // requestAnimationFrame(tick);
   // generateRain();
   // generateGrassBiome();
 }
